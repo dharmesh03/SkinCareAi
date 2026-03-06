@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}Register – Skincare AI{% endblock %}
+{% block extra_css %}
+<style>
+.auth-wrapper { min-height: calc(100vh - 180px); display:flex; align-items:center; justify-content:center; padding:20px 0; }
+.auth-container { width:100%; max-width:500px; }
+.auth-card { background:white; border-radius:var(--r-lg); box-shadow:var(--shadow-lg); overflow:hidden; border:1px solid var(--border); animation:slideUp 0.5s ease forwards; }
+.auth-header { background:var(--navy); padding:36px 40px 28px; position:relative; overflow:hidden; }
+.auth-header::before { content:''; position:absolute; inset:0; background:var(--gradient-mesh); }
+.auth-header-icon { width:52px; height:52px; background:rgba(16,185,129,0.20); border:2px solid rgba(16,185,129,0.30); border-radius:14px; display:flex; align-items:center; justify-content:center; color:#6EE7B7; font-size:1.3rem; margin-bottom:14px; position:relative; z-index:1; }
+.auth-header h2 { font-family:'DM Serif Display',serif; font-size:1.8rem; color:white; margin-bottom:6px; position:relative; z-index:1; }
+.auth-header p { color:rgba(255,255,255,0.55); font-size:0.875rem; position:relative; z-index:1; }
+.auth-body { padding:32px 40px; }
+
+.google-btn { width:100%; padding:12px; background:white; border:1.5px solid var(--border); border-radius:var(--r-sm); display:flex; align-items:center; justify-content:center; gap:12px; font-family:'Outfit',sans-serif; font-size:0.9rem; font-weight:600; color:var(--text); cursor:pointer; transition:all 0.25s; text-decoration:none; margin-bottom:18px; }
+.google-btn:hover { border-color:var(--teal); box-shadow:var(--shadow); }
+
+.divider { display:flex; align-items:center; gap:14px; margin:18px 0; color:var(--text-muted); font-size:0.8rem; }
+.divider::before, .divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+.input-group { position:relative; }
+.input-group .input-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:0.875rem; pointer-events:none; }
+.input-group .form-control { padding-left:40px; }
+.input-group .toggle-password { position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; padding:4px; font-size:0.875rem; }
+
+.phone-flag { position:absolute; left:12px; top:50%; transform:translateY(-50%); display:flex; align-items:center; gap:6px; color:var(--text-muted); font-size:0.8rem; pointer-events:none; }
+
+.password-strength { margin-top:6px; display:flex; gap:4px; }
+.strength-bar { height:3px; flex:1; border-radius:2px; background:var(--border); transition:all 0.3s; }
+.strength-text { font-size:0.72rem; color:var(--text-muted); margin-top:4px; }
+
+.btn-submit { width:100%; padding:13px; background:linear-gradient(135deg,#10B981,#059669); color:white; border:none; border-radius:var(--r-sm); font-size:0.95rem; font-weight:600; cursor:pointer; transition:all 0.25s; font-family:'Outfit',sans-serif; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 6px 20px rgba(16,185,129,0.30); }
+.btn-submit:hover { transform:translateY(-2px); box-shadow:0 12px 32px rgba(16,185,129,0.40); }
+
+.benefits-list { display:flex; flex-direction:column; gap:8px; margin:16px 0; }
+.benefit-item { display:flex; align-items:center; gap:10px; font-size:0.8rem; color:var(--text-muted); }
+.benefit-item i { color:var(--green); font-size:0.8rem; }
+
+.auth-footer { text-align:center; margin-top:20px; font-size:0.85rem; color:var(--text-muted); }
+.auth-footer a { color:var(--teal); font-weight:600; text-decoration:none; }
+
+@media (max-width:480px) { .form-row { grid-template-columns:1fr; } .auth-body { padding:24px; } .auth-header { padding:28px 24px 22px; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-header-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h2>Create Free Account</h2>
+                <p>Start your skin health journey – takes 30 seconds</p>
+            </div>
+            <div class="auth-body">
+                <!-- Google Register -->
+                <a href="{{ url_for('google_login') }}" class="google-btn">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Sign up with Google
+                </a>
+
+                <div class="divider">or register with email</div>
+
+                <form method="POST" id="registerForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">First Name <span style="color:var(--red)">*</span></label>
+                            <div class="input-group">
+                                <i class="fas fa-user input-icon"></i>
+                                <input type="text" name="name" class="form-control"
+                                       placeholder="Full Name" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Phone Number <span style="color:var(--red)">*</span></label>
+                            <div class="input-group">
+                                <i class="fas fa-phone input-icon"></i>
+                                <input type="tel" name="phone" class="form-control"
+                                       placeholder="+91-XXXXXXXXXX" required
+                                       pattern="[\+]?[0-9\-\s]{10,15}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address <span style="color:var(--red)">*</span></label>
+                        <div class="input-group">
+                            <i class="fas fa-envelope input-icon"></i>
+                            <input type="email" name="email" class="form-control"
+                                   placeholder="Enter your email ID" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Create Password <span style="color:var(--red)">*</span></label>
+                        <div class="input-group">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" name="password" id="password" class="form-control"
+                                   placeholder="Minimum 6 characters" required minlength="6"
+                                   oninput="checkStrength(this.value)">
+                            <button type="button" class="toggle-password" onclick="togglePwd()">
+                                <i class="fas fa-eye" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength">
+                            <div class="strength-bar" id="bar1"></div>
+                            <div class="strength-bar" id="bar2"></div>
+                            <div class="strength-bar" id="bar3"></div>
+                            <div class="strength-bar" id="bar4"></div>
+                        </div>
+                        <div class="strength-text" id="strengthText"></div>
+                    </div>
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-user-plus"></i> Create My Free Account
+                    </button>
+                </form>
+
+                <div class="benefits-list">
+                    <div class="benefit-item">
+                        <i class="fas fa-circle-check"></i> Free skin disease analysis with AI
+                    </div>
+                    <div class="benefit-item">
+                        <i class="fas fa-circle-check"></i> Auto-connect with specialist doctors
+                    </div>
+                    <div class="benefit-item">
+                        <i class="fas fa-circle-check"></i> Medicine recommendations in 3 systems
+                    </div>
+                </div>
+
+                <div class="auth-footer">
+                    Already registered? <a href="{{ url_for('login') }}">Sign in <i class="fas fa-arrow-right" style="font-size:11px;"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePwd() {
+    const pwd = document.getElementById('password');
+    const icon = document.getElementById('eyeIcon');
+    if (pwd.type === 'password') { pwd.type = 'text'; icon.classList.replace('fa-eye','fa-eye-slash'); }
+    else { pwd.type = 'password'; icon.classList.replace('fa-eye-slash','fa-eye'); }
+}
+
+function checkStrength(pwd) {
+    const bars = [1,2,3,4].map(i => document.getElementById('bar'+i));
+    const text = document.getElementById('strengthText');
+    const colors = ['#EF4444','#F59E0B','#3B82F6','#10B981'];
+    const labels = ['Too weak','Fair','Good','Strong'];
+    let score = 0;
+    if (pwd.length >= 6) score++;
+    if (pwd.length >= 10) score++;
+    if (/[A-Z]/.test(pwd) && /[0-9]/.test(pwd)) score++;
+    if (/[^A-Za-z0-9]/.test(pwd)) score++;
+    bars.forEach((b, i) => {
+        b.style.background = i < score ? colors[Math.min(score-1, 3)] : 'var(--border)';
+    });
+    text.textContent = pwd.length > 0 ? labels[Math.min(score, 3)] : '';
+    text.style.color = pwd.length > 0 ? colors[Math.min(score-1, 3)] : '';
+}
+</script>
+{% endblock %}

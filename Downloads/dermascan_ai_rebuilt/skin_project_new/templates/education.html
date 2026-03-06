@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Skin Disease Guide – Skincare AI{% endblock %}
+{% block extra_css %}
+<style>
+.page-header {
+    background:var(--navy); border-radius:var(--r-lg);
+    padding:40px 48px; color:white; margin-bottom:28px;
+    position:relative; overflow:hidden;
+}
+.page-header::before { content:''; position:absolute; inset:0; background:var(--gradient-mesh); }
+.page-header h1 { font-family:'DM Serif Display',serif; font-size:2rem; color:white; margin-bottom:6px; position:relative; z-index:1; }
+.page-header p { color:rgba(255,255,255,0.60); font-size:0.9rem; position:relative; z-index:1; }
+
+.diseases-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(340px,1fr)); gap:22px; }
+.disease-card {
+    background:white; border-radius:var(--r);
+    border:1px solid var(--border); overflow:hidden;
+    box-shadow:var(--shadow); transition:all 0.3s;
+}
+.disease-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-lg); }
+.disease-card-header {
+    padding:22px 24px; display:flex; align-items:center; gap:16px;
+    border-bottom:1px solid var(--border);
+}
+.disease-icon-box {
+    width:52px; height:52px; border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.3rem; flex-shrink:0;
+}
+.disease-card-name { font-size:1rem; font-weight:700; color:var(--navy); margin-bottom:4px; }
+.disease-card-sev { font-size:0.75rem; display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:50px; font-weight:600; }
+.disease-card-body { padding:18px 24px; }
+.disease-desc { font-size:0.83rem; color:var(--text-muted); line-height:1.65; margin-bottom:14px; }
+.symptom-chips { display:flex; flex-wrap:wrap; gap:6px; }
+.symptom-chip { background:#F0F9FF; color:var(--teal); padding:4px 10px; border-radius:50px; font-size:0.73rem; font-weight:500; border:1px solid rgba(8,145,178,0.15); }
+.disease-card-footer { padding:12px 24px; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; background:#F8FAFC; }
+.recovery-info { font-size:0.75rem; color:var(--text-muted); display:flex; align-items:center; gap:5px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-header animate-fadeIn">
+    <h1><i class="fas fa-book-open-reader" style="color:var(--teal-bright); margin-right:10px;"></i> Skin Disease Guide</h1>
+    <p>Educational information about common skin conditions detected by our AI system</p>
+</div>
+
+<div class="diseases-grid">
+    {% for key, info in disease_info.items() %}
+    <div class="disease-card">
+        <div class="disease-card-header">
+            <div class="disease-icon-box" style="background:{{ info.get('color','var(--teal)') }}22; color:{{ info.get('color','var(--teal)') }};">>
+                <i class="fas {{ info.get('icon', 'fa-circle-dot') }}"></i>
+            </div>
+            <div>
+                <div class="disease-card-name">{{ key }}</div>
+                <span class="disease-card-sev badge badge-{{ info.get('severity_class','warning') }}">
+                    <i class="fas fa-shield-halved"></i>
+                    {{ info.get('severity', 'Unknown') }}
+                </span>
+            </div>
+        </div>
+        <div class="disease-card-body">
+            <div class="disease-desc">{{ info.get('description', '') }}</div>
+            <div class="symptom-chips">
+                {% for sym in info.get('symptoms', [])[:4] %}
+                <span class="symptom-chip">{{ sym }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="disease-card-footer">
+            <div class="recovery-info">
+                <i class="fas fa-clock" style="color:var(--teal);"></i>
+                {{ info.get('recovery_time', 'Consult doctor') }}
+            </div>
+            {% if session.get('user_email') %}
+            <a href="{{ url_for('health_form') }}" class="btn btn-sm btn-primary">
+                <i class="fas fa-camera-viewfinder"></i> Scan for This
+            </a>
+            {% else %}
+            <a href="{{ url_for('register') }}" class="btn btn-sm btn-primary">
+                <i class="fas fa-user-plus"></i> Get Diagnosed
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

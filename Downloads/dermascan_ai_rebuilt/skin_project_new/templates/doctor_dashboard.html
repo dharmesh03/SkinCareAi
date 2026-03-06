@@ -1,0 +1,723 @@
+{% extends "base.html" %}
+{% block title %}Doctor Dashboard – Skincare AI{% endblock %}
+{% block extra_css %}
+<style>
+    .doc-dashboard-header {
+        background: var(--navy);
+        border-radius: var(--r-lg);
+        padding: 36px 48px;
+        color: white;
+        margin-bottom: 28px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .doc-dashboard-header::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--gradient-mesh);
+    }
+
+    .doc-header-inner {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        position: relative;
+        z-index: 1;
+    }
+
+    .doc-avatar-lg {
+        width: 80px;
+        height: 80px;
+        border: 2px solid rgba(8, 145, 178, 0.35);
+        border-radius: 18px;
+        flex-shrink: 0;
+        overflow: hidden;
+        background: rgba(8, 145, 178, 0.25);
+    }
+
+    .doc-avatar-lg img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top;
+        display: block;
+    }
+
+    .doc-header-info h1 {
+        font-family: 'DM Serif Display', serif;
+        font-size: 1.8rem;
+        color: white;
+        margin-bottom: 4px;
+    }
+
+    .doc-header-info p {
+        color: rgba(255, 255, 255, 0.60);
+        font-size: 0.875rem;
+    }
+
+    .doc-header-tags {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+    }
+
+    .doc-tag {
+        background: rgba(255, 255, 255, 0.10);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: rgba(255, 255, 255, 0.80);
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        margin-bottom: 28px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: var(--r);
+        padding: 22px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        animation: slideUp 0.4s ease forwards;
+        opacity: 0;
+    }
+
+    .stat-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+
+    .stat-val {
+        font-family: 'DM Serif Display', serif;
+        font-size: 2rem;
+        color: var(--navy);
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .patients-table {
+        background: white;
+        border-radius: var(--r);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .table-bar {
+        padding: 18px 24px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(135deg, rgba(8, 145, 178, 0.03), transparent);
+    }
+
+    .table-bar h2 {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--navy);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead {
+        background: #F8FAFC;
+    }
+
+    thead th {
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    tbody tr {
+        border-bottom: 1px solid var(--border);
+        transition: all 0.15s;
+    }
+
+    tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    tbody tr:hover {
+        background: #F8FAFC;
+    }
+
+    td {
+        padding: 14px 16px;
+        font-size: 0.85rem;
+        color: var(--text);
+        vertical-align: middle;
+    }
+
+    .patient-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .patient-avatar {
+        width: 38px;
+        height: 38px;
+        background: var(--teal-glow);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--teal);
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .patient-name {
+        font-weight: 600;
+        color: var(--navy);
+        font-size: 0.88rem;
+    }
+
+    .patient-email {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-top: 2px;
+    }
+
+    .contact-links {
+        display: flex;
+        gap: 8px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 24px;
+        color: var(--text-muted);
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        margin-bottom: 14px;
+        display: block;
+        color: var(--border);
+    }
+
+    .disease-chip-td {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 50px;
+        font-size: 0.78rem;
+        font-weight: 600;
+        background: rgba(8, 145, 178, 0.10);
+        color: var(--teal);
+    }
+
+    .appt-table {
+        background: white;
+        border-radius: var(--r);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        margin-top: 28px;
+    }
+
+    .appt-row-doc {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border);
+        transition: all 0.2s;
+    }
+
+    .appt-row-doc:last-child {
+        border-bottom: none;
+    }
+
+    .appt-row-doc:hover {
+        background: #F8FAFC;
+    }
+
+    .patient-appt-avatar {
+        width: 44px;
+        height: 44px;
+        background: var(--teal-glow);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--teal);
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .new-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(239, 68, 68, 0.12);
+        color: #991B1B;
+        padding: 2px 8px;
+        border-radius: 50px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        animation: pulse 2s infinite;
+    }
+
+    .notif-bell {
+        position: relative;
+        display: inline-flex;
+    }
+
+    .notif-dot {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        width: 16px;
+        height: 16px;
+        background: var(--red);
+        border-radius: 50%;
+        border: 2px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.6rem;
+        color: white;
+        font-weight: 700;
+    }
+
+    .visit-type-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 3px 10px;
+        border-radius: 50px;
+        font-size: 0.73rem;
+        font-weight: 600;
+    }
+
+    .vt-inperson {
+        background: rgba(8, 145, 178, 0.10);
+        color: var(--teal);
+    }
+
+    .vt-online {
+        background: rgba(16, 185, 129, 0.10);
+        color: var(--green);
+    }
+
+    @media (max-width:900px) {
+        .stats-row {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .doc-header-inner {
+            flex-direction: column;
+        }
+
+        table {
+            font-size: 0.8rem;
+        }
+
+        td {
+            padding: 10px 12px;
+        }
+
+        .appt-row-doc {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="doc-dashboard-header animate-fadeIn">
+    <div class="doc-header-inner">
+        <div class="doc-avatar-lg">
+            {% if current_doctor and current_doctor.image %}
+            <img src="/{{ current_doctor.image }}" alt="{{ current_doctor.name }}">
+            {% else %}
+            <img src="https://ui-avatars.com/api/?name={{ session.get('user_name','Doctor') | urlencode }}&background=0891b2&color=fff&size=80"
+                alt="{{ session.get('user_name') }}">
+            {% endif %}
+        </div>
+        <div class="doc-header-info">
+            <h1>Dr. {{ session.get('user_name', '').replace('Dr. ', '') }}</h1>
+            <p>
+                {% if current_doctor %}
+                {{ current_doctor.specialization }} – {{ current_doctor.hospital }}
+                {% else %}Doctor Dashboard{% endif %}
+            </p>
+            <div class="doc-header-tags">
+                {% if current_doctor %}
+                <span class="doc-tag"><i class="fas fa-graduation-cap"></i> {{ current_doctor.degree }}</span>
+                <span class="doc-tag"><i class="fas fa-clock"></i> {{ current_doctor.experience }} Experience</span>
+                <span class="doc-tag"><i class="fas fa-star" style="color:#F59E0B;"></i> {{ current_doctor.rating }}
+                    Rating</span>
+                {% if new_appts_count > 0 %}
+                <span class="doc-tag"
+                    style="background:rgba(239,68,68,0.20); border-color:rgba(239,68,68,0.30); color:#FCA5A5;">
+                    <span class="notif-bell">
+                        <i class="fas fa-bell"></i>
+                        <span class="notif-dot">{{ new_appts_count }}</span>
+                    </span>
+                    {{ new_appts_count }} New Appointment{{ 's' if new_appts_count > 1 else '' }}
+                </span>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-row">
+    <div class="stat-card stagger-1">
+        <div class="stat-icon" style="background:rgba(8,145,178,0.12); color:var(--teal);">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-val">{{ total_scans }}</div>
+        <div class="stat-label">Allocated Patients</div>
+    </div>
+    <div class="stat-card stagger-2">
+        <div class="stat-icon" style="background:rgba(16,185,129,0.12); color:var(--green);">
+            <i class="fas fa-calendar-check"></i>
+        </div>
+        <div class="stat-val">{{ appointments | length }}</div>
+        <div class="stat-label">Appointments</div>
+    </div>
+    <div class="stat-card stagger-3">
+        <div class="stat-icon" style="background:rgba(239,68,68,0.12); color:var(--red);">
+            <i class="fas fa-triangle-exclamation"></i>
+        </div>
+        <div class="stat-val">{{ scans | selectattr('disease', 'equalto', 'Melanoma') | list | length }}</div>
+        <div class="stat-label">Critical Cases</div>
+    </div>
+    <div class="stat-card stagger-4">
+        <div class="stat-icon" style="background:rgba(139,92,246,0.12); color:var(--purple);">
+            <i class="fas fa-layer-group"></i>
+        </div>
+        <div class="stat-val">{{ disease_counts | length }}</div>
+        <div class="stat-label">Disease Types</div>
+    </div>
+</div>
+
+<!-- Patient List -->
+<div class="patients-table">
+    <div class="table-bar">
+        <h2><i class="fas fa-users" style="color:var(--teal);"></i> My Patient List</h2>
+        {% if scans %}
+        <span class="badge badge-primary">{{ scans | length }} patients</span>
+        {% endif %}
+    </div>
+
+    {% if scans %}
+    <div style="overflow-x:auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Patient</th>
+                    <th>Contact Info</th>
+                    <th>Disease</th>
+                    <th>Confidence</th>
+                    <th>Scan Date</th>
+                    <th>Treatment</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for scan in scans | reverse %}
+                {% set patient_user = users_db.get(scan.user_email, {}) %}
+                <tr>
+                    <td style="color:var(--text-muted); font-size:0.78rem;">{{ loop.index }}</td>
+                    <td>
+                        <div class="patient-cell">
+                            <div class="patient-avatar"><i class="fas fa-user"></i></div>
+                            <div>
+                                <div class="patient-name">{{ scan.user_name }}</div>
+                                <div class="patient-email">{{ scan.user_email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="contact-links">
+                            <a href="tel:{{ patient_user.get('phone', scan.get('user_phone','')) }}"
+                                class="btn btn-sm btn-outline"
+                                title="{{ patient_user.get('phone', scan.get('user_phone', 'N/A')) }}"
+                                style="padding:5px 10px;">
+                                <i class="fas fa-phone"></i>
+                                {{ patient_user.get('phone', scan.get('user_phone', 'N/A'))[:14] }}
+                            </a>
+                            <a href="mailto:{{ scan.user_email }}" class="btn btn-sm"
+                                style="background:var(--teal-glow); color:var(--teal); padding:5px 10px; border-radius:var(--r-sm);">
+                                <i class="fas fa-envelope"></i>
+                            </a>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="disease-chip-td">
+                            {% set info = scan.get('disease_info', {}) %}
+                            {% set dcolor = info.get('color', '#0891B2') %}
+                            {% if info.get('icon') %}<i class="fas {{ info.icon }}" style="color:{{ dcolor }};"></i>{%
+                            endif %}
+                            {{ scan.get('disease', 'Unknown') }}
+                        </div>
+                    </td>
+                    <td>
+                        <span style="font-weight:700; color:var(--navy);">{{ scan.get('confidence', 0) | round(1)
+                            }}%</span>
+                    </td>
+                    <td style="color:var(--text-muted); font-size:0.8rem;">{{ scan.get('date', '') }}</td>
+                    <td>
+                        <span class="badge
+                            {% if scan.get('medicine_type') == 'allopathic' %}badge-primary
+                            {% elif scan.get('medicine_type') == 'ayurvedic' %}badge-success
+                            {% else %}badge-purple{% endif %}">
+                            {{ scan.get('medicine_type', 'allopathic') | title }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('view_scan', scan_id=scan.id) }}" class="btn btn-sm btn-primary">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-users"></i>
+        <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:8px; color:var(--navy);">No patients yet</h3>
+        <p style="font-size:0.875rem;">Patients will appear here once they are allocated to you based on their skin scan
+            results.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- ══ APPOINTMENTS SECTION ══ -->
+<div class="appt-table">
+    <div class="table-bar">
+        <h2>
+            <span class="notif-bell" style="margin-right:4px;">
+                <i class="fas fa-calendar-check" style="color:var(--teal);"></i>
+                {% if new_appts_count > 0 %}
+                <span class="notif-dot" style="top:-6px; right:-6px;">{{ new_appts_count }}</span>
+                {% endif %}
+            </span>
+            Scheduled Appointments
+        </h2>
+        {% if appointments %}
+        <span class="badge badge-primary">{{ appointments | length }} total</span>
+        {% endif %}
+    </div>
+
+    {% if appointments %}
+    {% for appt in appointments | reverse %}
+    {% set is_new = (appt.booked_at > (now_str if now_str is defined else '2000-01-01')) %}
+    <div class="appt-row-doc">
+        <!-- Patient avatar -->
+        <div class="patient-appt-avatar">
+            <i class="fas fa-user"></i>
+        </div>
+
+        <!-- Main details -->
+        <div style="flex:1; min-width:0;">
+            <div
+                style="font-weight:700; font-size:0.92rem; color:var(--navy); margin-bottom:4px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                {{ appt.user_name }}
+                {% if new_appts_count > 0 and loop.index <= new_appts_count %} <span class="new-badge"><i
+                        class="fas fa-circle" style="font-size:6px;"></i> NEW</span>
+                    {% endif %}
+                    <span
+                        class="visit-type-badge {% if appt.visit_type == 'Online Consultation' %}vt-online{% else %}vt-inperson{% endif %}">
+                        <i
+                            class="fas fa-{% if appt.visit_type == 'Online Consultation' %}video{% else %}hospital-user{% endif %}"></i>
+                        {{ appt.visit_type }}
+                    </span>
+            </div>
+            <div
+                style="font-size:0.78rem; color:var(--text-muted); display:flex; gap:14px; flex-wrap:wrap; margin-bottom:4px;">
+                <span><i class="fas fa-calendar" style="color:var(--teal);"></i> <strong style="color:var(--navy);">{{
+                        appt.date }}</strong></span>
+                <span><i class="fas fa-clock" style="color:var(--teal);"></i> <strong style="color:var(--navy);">{{
+                        appt.time }}</strong></span>
+                <span><i class="fas fa-notes-medical" style="color:var(--amber);"></i> {{ appt.reason }}</span>
+            </div>
+            {% if appt.notes %}
+            <div
+                style="font-size:0.75rem; color:var(--text-muted); background:#F8FAFC; padding:4px 10px; border-radius:6px; border-left:2px solid var(--teal); margin-top:4px;">
+                <i class="fas fa-comment-medical" style="color:var(--teal);"></i> {{ appt.notes }}
+            </div>
+            {% endif %}
+            <div style="font-size:0.73rem; color:var(--text-muted); margin-top:4px;">
+                <i class="fas fa-envelope"></i> {{ appt.user_email }} &nbsp;·&nbsp;
+                <i class="fas fa-clock"></i> Booked: {{ appt.booked_at }}
+            </div>
+        </div>
+
+        <!-- Status-aware Action Buttons -->
+        <div
+            style="display:flex; flex-direction:column; gap:8px; flex-shrink:0; min-width:130px; align-items:flex-end;">
+            {% if appt.status == 'Pending' %}
+            <div style="display:flex; gap:6px;">
+                <form method="POST" action="{{ url_for('accept_appointment', appt_id=appt.id) }}" style="margin:0;">
+                    <button type="submit" class="btn btn-sm"
+                        style="background:var(--green); color:white; font-size:0.78rem;"
+                        title="Accept this appointment">
+                        <i class="fas fa-check"></i> Accept
+                    </button>
+                </form>
+                <form method="POST" action="{{ url_for('reject_appointment', appt_id=appt.id) }}" style="margin:0;">
+                    <button type="submit" class="btn btn-sm"
+                        style="background:rgba(239,68,68,0.12); color:var(--red); border:1px solid rgba(239,68,68,0.25); font-size:0.78rem;"
+                        title="Decline this appointment">
+                        <i class="fas fa-times"></i> Decline
+                    </button>
+                </form>
+            </div>
+            <span
+                style="font-size:0.72rem; background:rgba(245,158,11,0.12); color:#92400E; padding:3px 10px; border-radius:50px; font-weight:600;">
+                <i class="fas fa-clock"></i> Pending
+            </span>
+            {% elif appt.status == 'Confirmed' %}
+            <span
+                style="font-size:0.72rem; background:rgba(16,185,129,0.12); color:#065F46; padding:4px 12px; border-radius:50px; font-weight:700;">
+                <i class="fas fa-check-circle"></i> Confirmed
+            </span>
+            <a href="mailto:{{ appt.user_email }}?subject=Appointment Confirmed – {{ appt.date }}&body=Dear {{ appt.user_name }},%0A%0AYour appointment on {{ appt.date }} at {{ appt.time }} is confirmed.%0A%0ARegards%0A{{ current_doctor.name if current_doctor else 'Doctor' }}"
+                class="btn btn-sm btn-outline" style="font-size:0.75rem;">
+                <i class="fas fa-envelope"></i> Email
+            </a>
+            {% else %}
+            <span
+                style="font-size:0.72rem; background:rgba(239,68,68,0.12); color:#991B1B; padding:4px 12px; border-radius:50px; font-weight:700;">
+                <i class="fas fa-times-circle"></i> Declined
+            </span>
+            {% endif %}
+            <a href="https://wa.me/{{ users_db.get(appt.user_email, {}).get('phone', '') | replace('+','') | replace('-','') }}?text=Regarding your appointment on {{ appt.date }}"
+                target="_blank" class="btn btn-sm" style="background:#25D366; color:white; font-size:0.75rem;">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-calendar-xmark"></i>
+        <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:8px; color:var(--navy);">No appointments yet</h3>
+        <p style="font-size:0.875rem;">Appointments booked by patients will appear here.</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- ══ PATIENT FEEDBACK RATINGS ══ -->
+<div class="patients-table" style="margin-top:28px;">
+    <div class="table-bar">
+        <h2><i class="fas fa-star" style="color:#F59E0B;"></i> Patient Feedback & Ratings</h2>
+        {% if feedbacks %}
+        <span class="badge" style="background:rgba(245,158,11,0.12); color:#92400E;">
+            ⭐ {{ avg_rating }}/5 &nbsp;&middot;&nbsp; {{ feedbacks | length }} review{{ 's' if feedbacks|length != 1
+            else '' }}
+        </span>
+        {% endif %}
+    </div>
+
+    {% if feedbacks %}
+    <!-- Rating bar summary -->
+    <div style="padding:18px 24px; border-bottom:1px solid var(--border); background:#FAFAFA;">
+        <div style="display:flex; align-items:center; gap:24px; flex-wrap:wrap;">
+            <div style="text-align:center;">
+                <div style="font-family:'DM Serif Display',serif; font-size:3rem; color:var(--navy); line-height:1;">{{
+                    avg_rating }}</div>
+                <div style="color:#F59E0B; font-size:1.2rem; margin:4px 0;">
+                    {% for i in range(1,6) %}
+                    {% if i <= avg_rating | int %}★{% else %}☆{% endif %} {% endfor %} </div>
+                        <div style="font-size:0.75rem; color:var(--text-muted);">{{ feedbacks | length }} ratings</div>
+                </div>
+                <div style="flex:1; min-width:180px;">
+                    {% for star in [5,4,3,2,1] %}
+                    {% set cnt = feedbacks | selectattr('rating','equalto', star) | list | length %}
+                    {% set pct = ((cnt / (feedbacks|length)) * 100) | round | int %}
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px; font-size:0.78rem;">
+                        <span style="width:50px; text-align:right; color:var(--text-muted);">{{ star }} ★</span>
+                        <div style="flex:1; height:8px; background:var(--border); border-radius:4px; overflow:hidden;">
+                            <div
+                                style="height:100%; width:{{ pct }}%; background:#F59E0B; border-radius:4px; transition:width 0.5s;">
+                            </div>
+                        </div>
+                        <span style="width:28px; color:var(--text-muted);">{{ cnt }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        {% for fb in feedbacks | reverse %}
+        <div
+            style="padding:14px 24px; border-bottom:1px solid var(--border); display:flex; gap:14px; align-items:flex-start;">
+            <div style="width:36px; height:36px; background:var(--teal-glow); border-radius:10px;
+                    display:flex; align-items:center; justify-content:center; color:var(--teal); flex-shrink:0;">
+                <i class="fas fa-user" style="font-size:0.85rem;"></i>
+            </div>
+            <div style="flex:1; min-width:0;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px; flex-wrap:wrap;">
+                    <span style="font-weight:600; font-size:0.88rem; color:var(--navy);">{{ fb.user_name }}</span>
+                    <span style="color:#F59E0B; font-size:0.95rem;">
+                        {% for i in range(1,6) %}{% if i <= fb.rating %}★{% else %}☆{% endif %}{% endfor %} </span>
+                            <span style="font-size:0.72rem; color:var(--text-muted);">{{ fb.created_at }}</span>
+                </div>
+                {% if fb.comment %}
+                <p style="font-size:0.83rem; color:#555; margin:0; line-height:1.6;">{{ fb.comment }}</p>
+                {% else %}
+                <p style="font-size:0.78rem; color:var(--text-muted); margin:0; font-style:italic;">No written review.
+                </p>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-star" style="color:#F59E0B;"></i>
+            <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:8px; color:var(--navy);">No ratings yet</h3>
+            <p style="font-size:0.875rem;">Patients will be able to rate you after confirmed appointments.</p>
+        </div>
+        {% endif %}
+    </div>
+    {% endblock %}

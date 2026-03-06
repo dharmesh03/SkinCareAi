@@ -1,0 +1,404 @@
+{% extends "base.html" %}
+{% block title %}Our Expert Doctors{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-hero {
+        background: var(--gradient);
+        border-radius: var(--r);
+        padding: 40px;
+        color: white;
+        margin-bottom: 32px;
+        text-align: center;
+    }
+
+    .page-hero h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.2rem;
+        margin-bottom: 10px;
+    }
+
+    .page-hero p {
+        opacity: 0.9;
+        font-size: 0.95rem;
+        max-width: 580px;
+        margin: 0 auto;
+    }
+
+    .filter-bar {
+        background: white;
+        border-radius: var(--r);
+        padding: 16px 24px;
+        box-shadow: var(--shadow);
+        margin-bottom: 28px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .filter-btn {
+        padding: 8px 18px;
+        border-radius: 50px;
+        border: 2px solid #0891B2;
+        background: white;
+        cursor: pointer;
+        font-size: 0.83rem;
+        font-weight: 500;
+        font-family: 'Poppins', sans-serif;
+        color: #666;
+        transition: all 0.2s;
+    }
+
+    .filter-btn.active,
+    .filter-btn:hover {
+        background: #0891B2;
+        color: white;
+        border-color: var(--teal);
+    }
+
+    .doctors-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+        gap: 24px;
+    }
+
+    .doctor-card {
+        background: white;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        transition: all 0.3s;
+    }
+
+    .doctor-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .doctor-card-header {
+        background: var(--gradient);
+        padding: 24px;
+        color: white;
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .doc-avatar {
+        width: 75px;
+        height: 75px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.20);
+        flex-shrink: 0;
+        border: 3px solid rgba(255, 255, 255, 0.40);
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .doc-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top;
+        border-radius: 50%;
+    }
+
+    .doc-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .doc-degree {
+        font-size: 0.78rem;
+        opacity: 0.85;
+        margin-bottom: 4px;
+    }
+
+    .doc-spec {
+        font-size: 0.82rem;
+        background: rgba(255, 255, 255, 0.18);
+        padding: 3px 10px;
+        border-radius: 50px;
+        display: inline-block;
+        margin-bottom: 8px;
+    }
+
+    .doc-stats {
+        display: flex;
+        gap: 14px;
+    }
+
+    .doc-stat {
+        font-size: 0.78rem;
+        opacity: 0.88;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .doctor-card-body {
+        padding: 20px 24px;
+    }
+
+    .contact-item {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 12px;
+        align-items: flex-start;
+    }
+
+    .contact-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        background: rgba(26, 107, 138, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--teal);
+        font-size: 0.8rem;
+        flex-shrink: 0;
+    }
+
+    .contact-info {
+        flex: 1;
+    }
+
+    .contact-label {
+        font-size: 0.70rem;
+        color: #aaa;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 2px;
+    }
+
+    .contact-value {
+        font-size: 0.87rem;
+        color: #333;
+        font-weight: 500;
+    }
+
+    .contact-value a {
+        color: var(--teal);
+        text-decoration: none;
+    }
+
+    .contact-value a:hover {
+        text-decoration: underline;
+    }
+
+    .lang-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 4px;
+    }
+
+    .lang-tag {
+        background: rgba(26, 107, 138, 0.08);
+        color: var(--teal);
+        padding: 2px 10px;
+        border-radius: 50px;
+        font-size: 0.72rem;
+        font-weight: 500;
+    }
+
+    .action-btns {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 16px 24px;
+        background: #fafafa;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .action-btn {
+        padding: 11px;
+        border-radius: 10px;
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-align: center;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        transition: all 0.2s;
+        cursor: pointer;
+        border: none;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .btn-call {
+        background: var(--gradient);
+        color: white;
+    }
+
+    .btn-wa {
+        background: #25D366;
+        color: white;
+    }
+
+    .btn-email {
+        background: rgba(26, 107, 138, 0.10);
+        color: var(--teal);
+        border: 1px solid rgba(26, 107, 138, 0.20);
+    }
+
+    .btn-appt {
+        background: var(--gradient-teal);
+        color: white;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .rating-stars {
+        color: #f39c12;
+        font-size: 0.88rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+    <h1>Our Expert Doctors</h1>
+    <p>Connect directly with our panel of expert dermatologists, Ayurvedic physicians, and Homeopathic doctors for
+        professional consultation and personalised treatment.</p>
+</div>
+
+<div class="filter-bar">
+    <span style="font-weight: 600; color: #555; font-size: 0.88rem; padding: 8px 4px;">Filter by speciality:</span>
+    <button class="filter-btn active" onclick="filterDoctors('all', this)">All Doctors ({{ doctors|length }})</button>
+    <button class="filter-btn" onclick="filterDoctors('Dermatologist', this)">Dermatologist</button>
+    <button class="filter-btn" onclick="filterDoctors('Ayurvedic', this)">Ayurvedic</button>
+    <button class="filter-btn" onclick="filterDoctors('Homeopathic', this)">Homeopathic</button>
+</div>
+
+<div class="doctors-grid" id="doctorsGrid">
+    {% for doc in doctors %}
+    <div class="doctor-card" data-type="{{ doc.specialization }}">
+        <div class="doctor-card-header">
+            <div class="doc-avatar">
+                {% if doc.image %}
+                <img src="/{{ doc.image }}" alt="{{ doc.name }}">
+                {% else %}
+                <i class="fas fa-user-doctor" style="font-size:2rem; color:rgba(255,255,255,0.8);"></i>
+                {% endif %}
+            </div>
+            <div>
+                <div class="doc-name">{{ doc.name }}</div>
+                <div class="doc-degree">{{ doc.degree }}</div>
+                <div class="doc-spec">{{ doc.specialization }}</div>
+                <div class="doc-stats">
+                    <div class="doc-stat">⭐ {{ doc.live_rating if doc.live_rating is defined else doc.rating }} ({{
+                        doc.live_reviews if doc.live_reviews is defined else doc.reviews }} reviews)</div>
+                    <div class="doc-stat">💼 {{ doc.experience }}</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="doctor-card-body">
+            <div class="contact-item">
+                <div class="contact-icon"><i class="fas fa-hospital"></i></div>
+                <div class="contact-info">
+                    <div class="contact-label">Hospital / Clinic</div>
+                    <div class="contact-value">{{ doc.hospital }}</div>
+                </div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+                <div class="contact-info">
+                    <div class="contact-label">Address</div>
+                    <div class="contact-value">{{ doc.address }}</div>
+                </div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-icon"><i class="fas fa-phone"></i></div>
+                <div class="contact-info">
+                    <div class="contact-label">Phone Number</div>
+                    <div class="contact-value"><a href="tel:{{ doc.phone }}">{{ doc.phone }}</a></div>
+                </div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-icon"><i class="fab fa-whatsapp"></i></div>
+                <div class="contact-info">
+                    <div class="contact-label">WhatsApp</div>
+                    <div class="contact-value"><a href="https://wa.me/{{ doc.whatsapp|replace('+','') }}"
+                            target="_blank">{{ doc.whatsapp }}</a></div>
+                </div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+                <div class="contact-info">
+                    <div class="contact-label">Email</div>
+                    <div class="contact-value"><a href="mailto:{{ doc.email }}">{{ doc.email }}</a></div>
+                </div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-icon"><i class="fas fa-clock"></i></div>
+                <div class="contact-info">
+                    <div class="contact-label">Available Timings</div>
+                    <div class="contact-value">{{ doc.timings }}</div>
+                </div>
+            </div>
+            <div class="contact-item">
+                <div class="contact-icon"><i class="fas fa-language"></i></div>
+                <div class="contact-info">
+                    <div class="contact-label">Languages</div>
+                    <div class="lang-tags">
+                        {% for lang in doc.languages.split(', ') %}
+                        <span class="lang-tag">{{ lang }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-btns">
+            <a href="tel:{{ doc.phone }}" class="action-btn btn-call"><i class="fas fa-phone"></i> Call Now</a>
+            <a href="https://wa.me/{{ doc.whatsapp|replace('+','') }}?text=Hello%20{{ doc.name }},%20I%20would%20like%20to%20book%20an%20appointment%20for%20a%20skin%20consultation."
+                target="_blank" class="action-btn btn-wa"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+            <a href="mailto:skincare51040@gmail.com?subject=Appointment%20Request%20–%20Skin%20Consultation&body=Hello%20{{ doc.name }},%0A%0AI%20would%20like%20to%20book%20an%20appointment%20for%20a%20skin%20consultation.%0A%0APlease%20let%20me%20know%20your%20available%20slots."
+                class="action-btn btn-email"><i class="fas fa-envelope"></i> Send Email</a>
+            <a href="{{ url_for('book_appointment', doctor_id=doc.id) }}" class="action-btn btn-appt"><i
+                    class="fas fa-calendar-check"></i> Book Appt</a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div
+    style="background: white; border-radius: var(--radius); box-shadow: var(--shadow); padding: 28px; margin-top: 28px; text-align: center;">
+    <h3 style="font-size: 1.1rem; margin-bottom: 8px; color: var(--navy);">Emergency / Urgent Consultation</h3>
+    <p style="color: #888; font-size: 0.88rem; margin-bottom: 16px;">For urgent skin issues, critical conditions, or if
+        you suspect Melanoma – contact us immediately</p>
+    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <a href="tel:+919979732014" class="btn btn-primary"><i class="fas fa-phone"></i> Emergency Helpline:
+            +91-9979732014</a>
+        <a href="https://wa.me/919979732014?text=URGENT%20skin%20consultation%20needed" class="btn"
+            style="background: #25D366; color: white;"><i class="fab fa-whatsapp"></i> Urgent WhatsApp</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function filterDoctors(type, btn) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.doctor-card').forEach(card => {
+            if (type === 'all' || card.dataset.type.includes(type)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}

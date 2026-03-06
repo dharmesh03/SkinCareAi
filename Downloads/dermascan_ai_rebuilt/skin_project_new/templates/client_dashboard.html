@@ -1,0 +1,490 @@
+{% extends "base.html" %}
+{% block title %}My Dashboard – DermaScan AI{% endblock %}
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        background: var(--navy);
+        border-radius: var(--r-lg);
+        padding: 36px 48px;
+        color: white;
+        margin-bottom: 28px;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+    }
+
+    .dashboard-header::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: var(--gradient-mesh);
+    }
+
+    .dash-welcome {
+        position: relative;
+        z-index: 1;
+    }
+
+    .dash-welcome h1 {
+        font-family: 'DM Serif Display', serif;
+        font-size: 1.9rem;
+        color: white;
+        margin-bottom: 4px;
+    }
+
+    .dash-welcome p {
+        color: rgba(255, 255, 255, 0.60);
+        font-size: 0.9rem;
+    }
+
+    .dash-cta {
+        position: relative;
+        z-index: 1;
+    }
+
+    .stats-row {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        margin-bottom: 28px;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: var(--r);
+        padding: 22px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        animation: slideUp 0.4s ease forwards;
+        opacity: 0;
+    }
+
+    .stat-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+
+    .stat-val {
+        font-family: 'DM Serif Display', serif;
+        font-size: 2rem;
+        color: var(--navy);
+        line-height: 1;
+    }
+
+    .stat-label {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+
+    .scans-section {
+        background: white;
+        border-radius: var(--r);
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .section-bar {
+        padding: 18px 24px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: linear-gradient(135deg, rgba(8, 145, 178, 0.03), transparent);
+    }
+
+    .section-bar h2 {
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--navy);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .scan-row {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border);
+        transition: all 0.2s;
+    }
+
+    .scan-row:last-child {
+        border-bottom: none;
+    }
+
+    .scan-row:hover {
+        background: #F8FAFC;
+    }
+
+    .scan-thumb {
+        width: 54px;
+        height: 54px;
+        border-radius: 10px;
+        object-fit: cover;
+        flex-shrink: 0;
+        border: 2px solid var(--border);
+    }
+
+    .scan-thumb-placeholder {
+        width: 54px;
+        height: 54px;
+        border-radius: 10px;
+        background: var(--teal-glow);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--teal);
+        font-size: 1.3rem;
+        flex-shrink: 0;
+        border: 2px solid rgba(8, 145, 178, 0.20);
+    }
+
+    .scan-disease {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: var(--navy);
+        margin-bottom: 3px;
+    }
+
+    .scan-meta {
+        font-size: 0.77rem;
+        color: var(--text-muted);
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .scan-meta span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .scan-confidence {
+        margin-left: auto;
+        text-align: right;
+        flex-shrink: 0;
+    }
+
+    .conf-val {
+        font-family: 'DM Serif Display', serif;
+        font-size: 1.4rem;
+        color: var(--teal);
+    }
+
+    .conf-lbl {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 24px;
+        color: var(--text-muted);
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        margin-bottom: 14px;
+        display: block;
+        color: var(--border);
+    }
+
+    .appt-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border);
+        transition: all 0.2s;
+    }
+
+    .appt-row:last-child {
+        border-bottom: none;
+    }
+
+    .appt-row:hover {
+        background: #F8FAFC;
+    }
+
+    .appt-avatar {
+        width: 52px;
+        height: 52px;
+        border-radius: 12px;
+        background: var(--gradient-teal);
+        flex-shrink: 0;
+        overflow: hidden;
+        border: 2px solid rgba(8, 145, 178, 0.20);
+    }
+
+    .appt-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top;
+        display: block;
+    }
+
+    .appt-status-badge {
+        padding: 3px 10px;
+        border-radius: 50px;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+    }
+
+    .status-confirmed {
+        background: rgba(16, 185, 129, 0.12);
+        color: #065F46;
+    }
+
+    .status-pending {
+        background: rgba(245, 158, 11, 0.12);
+        color: #92400E;
+    }
+
+    .status-cancelled {
+        background: rgba(239, 68, 68, 0.12);
+        color: #991B1B;
+    }
+
+    @media (max-width:768px) {
+        .stats-row {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .dashboard-header {
+            flex-direction: column;
+            padding: 28px;
+        }
+
+        .appt-row {
+            flex-wrap: wrap;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header animate-fadeIn">
+    <div class="dash-welcome">
+        <h1>Welcome back, {{ session.get('user_name', '').split()[0] }}</h1>
+        <p>Here's your skin health overview and scan history</p>
+    </div>
+    <div class="dash-cta">
+        <a href="{{ url_for('health_form') }}" class="btn btn-primary pulse">
+            <i class="fas fa-camera-viewfinder"></i> New Skin Scan
+        </a>
+    </div>
+</div>
+
+<!-- Stats -->
+<div class="stats-row">
+    <div class="stat-card stagger-1">
+        <div class="stat-icon" style="background:rgba(8,145,178,0.12); color:var(--teal);">
+            <i class="fas fa-camera-viewfinder"></i>
+        </div>
+        <div class="stat-val">{{ scans | length }}</div>
+        <div class="stat-label">Total Scans</div>
+    </div>
+    <div class="stat-card stagger-2">
+        <div class="stat-icon" style="background:rgba(16,185,129,0.12); color:var(--green);">
+            <i class="fas fa-stethoscope"></i>
+        </div>
+        <div class="stat-val">{{ scans | selectattr('allocated_doctors') | list | length }}</div>
+        <div class="stat-label">Doctor Contacts</div>
+    </div>
+    <div class="stat-card stagger-3">
+        <div class="stat-icon" style="background:rgba(245,158,11,0.12); color:var(--amber);">
+            <i class="fas fa-calendar-check"></i>
+        </div>
+        <div class="stat-val">{{ appointments | length }}</div>
+        <div class="stat-label">Appointments</div>
+    </div>
+    <div class="stat-card stagger-4">
+        <div class="stat-icon" style="background:rgba(10,22,40,0.08); color:var(--navy);">
+            <i class="fas fa-calendar-day"></i>
+        </div>
+        <div class="stat-val">
+            {% if scans %}{{ scans[-1].date.split(' ')[0] }}{% else %}—{% endif %}
+        </div>
+        <div class="stat-label">Last Scan Date</div>
+    </div>
+    <div class="stat-card stagger-4">
+        <div class="stat-icon" style="background:rgba(139,92,246,0.12); color:var(--purple);">
+            <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="stat-val" style="font-size:1rem; padding-top:6px;">{{ session.get('user_email', '')[:20] }}</div>
+        <div class="stat-label">Account Email</div>
+    </div>
+</div>
+
+<!-- Scan History -->
+<div class="scans-section">
+    <div class="section-bar">
+        <h2><i class="fas fa-clock-rotate-left" style="color:var(--teal);"></i> Scan History</h2>
+        {% if scans %}
+        <span class="badge badge-primary">{{ scans | length }} records</span>
+        {% endif %}
+    </div>
+
+    {% if scans %}
+    {% for scan in scans | reverse %}
+    <div class="scan-row">
+        {% if scan.get('image_path') %}
+        <img src="/{{ scan.image_path.replace('\\', '/') }}" class="scan-thumb">
+        {% else %}
+        <div class="scan-thumb-placeholder">
+            <i class="fas fa-image"></i>
+        </div>
+        {% endif %}
+        <div style="flex:1; min-width:0;">
+            <div class="scan-disease">
+                {% set info = scan.get('disease_info', {}) %}
+                {% set icon_color = info.get('color', '#0891B2') %}
+                {% if info.get('icon') %}
+                <i class="fas {{ info.icon }}" style="color:{{ icon_color }}; margin-right:5px;"></i>
+                {% endif %}
+                {{ scan.get('disease', 'Unknown') }}
+            </div>
+            <div class="scan-meta">
+                <span><i class="fas fa-calendar"></i> {{ scan.get('date', '') }}</span>
+                <span><i class="fas fa-pills"></i> {{ scan.get('medicine_type', 'allopathic') | title }}</span>
+                {% if scan.get('allocated_doctors') %}
+                <span style="color:var(--green);"><i class="fas fa-user-doctor"></i>
+                    {{ scan.allocated_doctors | map(attribute='name') | list | join(', ') }}
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        <div class="scan-confidence">
+            <div class="conf-val">{{ scan.get('confidence', 0) | round(1) }}%</div>
+            <div class="conf-lbl">AI Confidence</div>
+        </div>
+        <a href="{{ url_for('view_scan', scan_id=scan.id) }}" class="btn btn-sm btn-outline" style="flex-shrink:0;">
+            <i class="fas fa-eye"></i> View
+        </a>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-camera-viewfinder"></i>
+        <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:8px; color:var(--navy);">No scans yet</h3>
+        <p style="font-size:0.875rem; margin-bottom:20px;">Start your first skin analysis today</p>
+        <a href="{{ url_for('health_form') }}" class="btn btn-primary">
+            <i class="fas fa-arrow-right"></i> Start First Scan
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Appointments Section -->
+<div class="scans-section" style="margin-top:28px;">
+    <div class="section-bar">
+        <h2><i class="fas fa-calendar-check" style="color:var(--teal);"></i> My Appointments</h2>
+        {% if appointments %}
+        <span class="badge badge-primary">{{ appointments | length }} booked</span>
+        {% endif %}
+        <a href="{{ url_for('doctors') }}" class="btn btn-sm btn-primary" style="margin-left:auto;">
+            <i class="fas fa-plus"></i> Book New
+        </a>
+    </div>
+
+    {% if appointments %}
+    {% for appt in appointments | reverse %}
+    <div class="appt-row">
+        <div class="appt-avatar">
+            {% if appt.doctor_image %}
+            <img src="/{{ appt.doctor_image }}" alt="{{ appt.doctor_name }}">
+            {% else %}
+            <img src="https://ui-avatars.com/api/?name={{ appt.doctor_name | urlencode }}&background=0891b2&color=fff&size=52"
+                alt="{{ appt.doctor_name }}">
+            {% endif %}
+        </div>
+        <div style="flex:1; min-width:0;">
+            <div
+                style="font-weight:600; font-size:0.92rem; color:var(--navy); margin-bottom:4px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                {{ appt.doctor_name }}
+                {% if appt.status == 'Pending' %}
+                <span class="appt-status-badge" style="background:rgba(245,158,11,0.14); color:#92400E;">
+                    <i class="fas fa-clock"></i> Pending
+                </span>
+                {% elif appt.status == 'Confirmed' %}
+                <span class="appt-status-badge" style="background:rgba(16,185,129,0.13); color:#065F46;">
+                    <i class="fas fa-check-circle"></i> Confirmed
+                </span>
+                {% else %}
+                <span class="appt-status-badge" style="background:rgba(239,68,68,0.12); color:#991B1B;">
+                    <i class="fas fa-times-circle"></i> Declined
+                </span>
+                {% endif %}
+            </div>
+            <div style="font-size:0.77rem; color:var(--text-muted); display:flex; gap:12px; flex-wrap:wrap;">
+                <span><i class="fas fa-calendar"></i> {{ appt.date }}</span>
+                <span><i class="fas fa-clock"></i> {{ appt.time }}</span>
+                <span><i class="fas fa-hospital-user"></i> {{ appt.visit_type }}</span>
+                <span style="color:var(--teal);"><i class="fas fa-notes-medical"></i> {{ appt.reason }}</span>
+            </div>
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:3px;">
+                <i class="fas fa-hospital" style="color:var(--teal);"></i> {{ appt.doctor_hospital }}
+            </div>
+        </div>
+        <div style="flex-shrink:0; display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
+            <div style="font-size:0.72rem; color:var(--text-muted);">{{ appt.booked_at }}</div>
+            {% if appt.status == 'Pending' %}
+            <span
+                style="font-size:0.74rem; color:#92400E; background:rgba(245,158,11,0.09); padding:5px 12px; border-radius:6px; font-weight:600;">
+                <i class="fas fa-hourglass-half"></i> Awaiting doctor...
+            </span>
+            {% elif appt.status == 'Confirmed' %}
+            {% if appt.doctor_id in rated_doctor_ids %}
+            <span class="btn btn-sm"
+                style="background:rgba(245,158,11,0.12); color:#92400E; cursor:default; font-size:0.78rem;">
+                <i class="fas fa-star" style="color:#F59E0B;"></i> Rated
+            </span>
+            {% else %}
+            <a href="{{ url_for('submit_feedback', doctor_id=appt.doctor_id) }}" class="btn btn-sm"
+                style="background:linear-gradient(135deg,#F59E0B,#F97316); color:white; font-size:0.78rem;">
+                <i class="fas fa-star"></i> Give Feedback
+            </a>
+            {% endif %}
+            <a href="{{ url_for('book_appointment', doctor_id=appt.doctor_id) }}" class="btn btn-sm btn-outline"
+                style="font-size:0.78rem;">
+                <i class="fas fa-rotate-right"></i> Rebook
+            </a>
+            {% else %}
+            <a href="{{ url_for('book_appointment', doctor_id=appt.doctor_id) }}" class="btn btn-sm btn-primary"
+                style="font-size:0.78rem;">
+                <i class="fas fa-calendar-plus"></i> Book Again
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-calendar-xmark"></i>
+        <h3 style="font-size:1.1rem; font-weight:600; margin-bottom:8px; color:var(--navy);">No appointments yet</h3>
+        <p style="font-size:0.875rem; margin-bottom:20px;">Book a consultation with one of our expert doctors</p>
+        <a href="{{ url_for('doctors') }}" class="btn btn-primary">
+            <i class="fas fa-user-doctor"></i> Find a Doctor
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

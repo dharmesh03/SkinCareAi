@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}About – DermaScan AI{% endblock %}
+{% block content %}
+<div style="background:var(--navy); border-radius:var(--r-lg); padding:60px 48px; color:white; margin-bottom:32px; position:relative; overflow:hidden; text-align:center;">
+    <div style="position:absolute; inset:0; background:var(--gradient-mesh);"></div>
+    <div style="position:relative; z-index:1;">
+        <div style="width:80px; height:80px; background:rgba(8,145,178,0.20); border:2px solid rgba(8,145,178,0.30); border-radius:20px; display:flex; align-items:center; justify-content:center; color:var(--teal-bright); font-size:2rem; margin:0 auto 20px;">
+            <i class="fas fa-microscope"></i>
+        </div>
+        <h1 style="font-family:'DM Serif Display',serif; font-size:2.5rem; margin-bottom:12px;">About SkinCare AI</h1>
+        <p style="color:rgba(255,255,255,0.65); font-size:1rem; max-width:600px; margin:0 auto; line-height:1.75;">
+            India's most advanced AI-powered skin disease analysis platform. We combine cutting-edge deep learning with the wisdom of Ayurvedic, Homeopathic, and Allopathic medicine.
+        </p>
+    </div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:32px;">
+    <div class="card" style="padding:32px;">
+        <i class="fas fa-bullseye" style="font-size:2rem; color:var(--teal); margin-bottom:16px; display:block;"></i>
+        <h3 style="font-size:1.2rem; font-weight:700; color:var(--navy); margin-bottom:12px;">Our Mission</h3>
+        <p style="color:var(--text-muted); line-height:1.7; font-size:0.9rem;">
+            To democratize access to quality skin healthcare in India by leveraging artificial intelligence. We believe every person deserves accurate, affordable, and accessible skin health diagnosis – regardless of their location or economic status.
+        </p>
+    </div>
+    <div class="card" style="padding:32px;">
+        <i class="fas fa-eye" style="font-size:2rem; color:var(--green); margin-bottom:16px; display:block;"></i>
+        <h3 style="font-size:1.2rem; font-weight:700; color:var(--navy); margin-bottom:12px;">Our Vision</h3>
+        <p style="color:var(--text-muted); line-height:1.7; font-size:0.9rem;">
+            A future where AI assists dermatologists to provide faster, more accurate diagnoses, and where patients have instant access to trusted medical information and specialist doctors from anywhere in India.
+        </p>
+    </div>
+</div>
+
+<div class="card" style="padding:32px; margin-bottom:24px;">
+    <h3 style="font-family:'DM Serif Display',serif; font-size:1.5rem; color:var(--navy); margin-bottom:20px; display:flex; align-items:center; gap:10px;">
+        <i class="fas fa-shield-halved" style="color:var(--teal);"></i> Disclaimer
+    </h3>
+    <div style="background:#FFFBEB; border:1px solid #FDE68A; border-radius:var(--r-sm); padding:18px; font-size:0.875rem; color:#92400E; line-height:1.7;">
+        <strong><i class="fas fa-triangle-exclamation"></i> Important:</strong> DermaScan AI is an educational and screening tool only. It is <strong>NOT a substitute for professional medical diagnosis</strong>. Always consult a qualified dermatologist or healthcare professional for proper diagnosis and treatment. Do not rely solely on AI analysis for medical decisions. In case of serious symptoms, seek immediate medical attention.
+    </div>
+</div>
+
+{% if not session.get('user_email') %}
+<div style="background:var(--gradient); border-radius:var(--r-lg); padding:48px; text-align:center; position:relative; overflow:hidden;">
+    <div style="position:absolute; inset:0; background:var(--gradient-mesh);"></div>
+    <h2 style="font-family:'DM Serif Display',serif; font-size:2rem; color:white; margin-bottom:12px; position:relative; z-index:1;">Ready to Get Started?</h2>
+    <p style="color:rgba(255,255,255,0.70); margin-bottom:24px; position:relative; z-index:1;">Register for free and get your first skin analysis in minutes</p>
+    <div style="display:flex; gap:14px; justify-content:center; position:relative; z-index:1;">
+        <a href="{{ url_for('register') }}" class="btn" style="background:white; color:var(--navy); font-size:0.95rem; padding:12px 24px;">
+            <i class="fas fa-rocket"></i> Register Free
+        </a>
+        <a href="{{ url_for('login') }}" class="btn" style="border:2px solid rgba(255,255,255,0.35); color:white; background:transparent; padding:11px 22px;">
+            <i class="fas fa-right-to-bracket"></i> Login
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

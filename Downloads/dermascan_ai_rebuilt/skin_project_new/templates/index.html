@@ -1,0 +1,605 @@
+{% extends "base.html" %}
+{% block title %}Skincare AI – Intelligent Skin Analysis{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ── HERO ── */
+.hero {
+    background: var(--navy);
+    border-radius: var(--r-lg);
+    padding: 80px 60px;
+    margin-bottom: 48px;
+    position: relative;
+    overflow: hidden;
+    min-height: 480px;
+    display: flex;
+    align-items: center;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gradient-mesh);
+    pointer-events: none;
+}
+
+.hero-bg-circle {
+    position: absolute;
+    right: -60px;
+    top: -60px;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(8,145,178,0.18) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+    max-width: 560px;
+}
+
+.hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(8,145,178,0.20);
+    color: var(--teal-bright);
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(8,145,178,0.25);
+}
+
+.hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 3.2rem;
+    color: white;
+    line-height: 1.15;
+    margin-bottom: 18px;
+    letter-spacing: -1px;
+}
+
+.hero h1 span {
+    color: var(--teal-bright);
+}
+
+.hero p {
+    color: rgba(255,255,255,0.70);
+    font-size: 1rem;
+    line-height: 1.75;
+    margin-bottom: 32px;
+}
+
+.hero-cta {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.hero-stats {
+    display: flex;
+    gap: 32px;
+    margin-top: 40px;
+    padding-top: 32px;
+    border-top: 1px solid rgba(255,255,255,0.10);
+}
+
+.hero-stat-value {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.8rem;
+    color: white;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.hero-stat-label {
+    font-size: 0.78rem;
+    color: rgba(255,255,255,0.50);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.hero-image-panel {
+    position: absolute;
+    right: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    opacity: 0.85;
+}
+
+.hero-image-card {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 16px;
+    color: white;
+    font-size: 0.78rem;
+    backdrop-filter: blur(10px);
+    min-width: 130px;
+}
+
+.hero-image-card i {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+    display: block;
+}
+
+/* ── HOW IT WORKS ── */
+.steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-bottom: 48px;
+}
+
+.step-card {
+    background: white;
+    border-radius: var(--r);
+    padding: 28px 22px;
+    text-align: center;
+    border: 1px solid var(--border);
+    position: relative;
+    transition: all 0.3s;
+    opacity: 0;
+    animation: slideUp 0.6s ease forwards;
+}
+
+.step-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--teal);
+}
+
+.step-connector {
+    position: absolute;
+    top: 42px;
+    right: -12px;
+    color: var(--border);
+    font-size: 1.2rem;
+    z-index: 1;
+}
+
+.step-number {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 26px;
+    height: 26px;
+    background: var(--gradient-teal);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    box-shadow: var(--shadow-teal);
+}
+
+.step-icon {
+    width: 60px;
+    height: 60px;
+    background: var(--teal-glow);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 16px auto 16px;
+    color: var(--teal);
+    font-size: 1.4rem;
+    transition: all 0.3s;
+}
+
+.step-card:hover .step-icon {
+    background: var(--gradient-teal);
+    color: white;
+    transform: scale(1.1);
+}
+
+.step-card h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; color: var(--navy); }
+.step-card p { font-size: 0.82rem; color: var(--text-muted); line-height: 1.6; }
+
+/* ── FEATURES ── */
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-bottom: 48px;
+}
+
+.feature-card {
+    background: white;
+    border-radius: var(--r);
+    padding: 28px;
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+    opacity: 0;
+    animation: slideUp 0.6s ease forwards;
+}
+
+.feature-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--teal);
+}
+
+.feature-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-bottom: 18px;
+}
+
+.feature-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 8px; color: var(--navy); }
+.feature-card p { font-size: 0.83rem; color: var(--text-muted); line-height: 1.65; }
+
+/* ── DISEASES PREVIEW ── */
+.diseases-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 48px;
+}
+
+.disease-chip {
+    background: white;
+    border-radius: var(--r);
+    padding: 18px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    text-decoration: none;
+    color: var(--text);
+    transition: all 0.25s;
+}
+
+.disease-chip:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+    border-color: var(--teal);
+    color: var(--teal);
+}
+
+.disease-chip-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.disease-chip-name { font-size: 0.87rem; font-weight: 600; }
+.disease-chip-type { font-size: 0.73rem; color: var(--text-muted); margin-top: 2px; }
+
+/* ── CTA BANNER ── */
+.cta-banner {
+    background: var(--gradient);
+    border-radius: var(--r-lg);
+    padding: 56px 60px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 48px;
+}
+
+.cta-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gradient-mesh);
+}
+
+.cta-banner h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.2rem;
+    color: white;
+    margin-bottom: 14px;
+    position: relative;
+    z-index: 1;
+}
+
+.cta-banner p {
+    color: rgba(255,255,255,0.75);
+    font-size: 0.95rem;
+    margin-bottom: 28px;
+    position: relative;
+    z-index: 1;
+}
+
+@media (max-width: 900px) {
+    .hero { padding: 48px 28px; min-height: auto; }
+    .hero h1 { font-size: 2.2rem; }
+    .hero-image-panel { display: none; }
+    .hero-stats { gap: 20px; }
+    .steps-grid { grid-template-columns: 1fr 1fr; }
+    .features-grid { grid-template-columns: 1fr; }
+    .diseases-grid { grid-template-columns: repeat(2, 1fr); }
+    .step-connector { display: none; }
+    .cta-banner { padding: 40px 24px; }
+    .cta-banner h2 { font-size: 1.6rem; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- HERO -->
+<section class="hero animate-fadeIn">
+    <div class="hero-bg-circle"></div>
+    <div class="hero-content">
+        <div class="hero-tag">
+            <i class="fas fa-sparkles"></i>
+            AI-Powered Skin Disease Detection
+        </div>
+        <h1>Diagnose Your Skin<br>With <span>Intelligence</span></h1>
+        <p>Upload a photo of your skin condition and get instant AI analysis, personalised medicine recommendations in Allopathic, Ayurvedic or Homeopathic, and automatic doctor allocation — all in seconds.</p>
+        <div class="hero-cta">
+            {% if session.get('user_email') %}
+                <a href="{{ url_for('health_form') }}" class="btn btn-primary btn-lg pulse">
+                    <i class="fas fa-camera-viewfinder"></i> Start Skin Scan
+                </a>
+                <a href="{{ url_for('client_dashboard') }}" class="btn" style="color:white; border:2px solid rgba(255,255,255,0.30); background:transparent; padding:13px 22px;">
+                    <i class="fas fa-gauge-high"></i> My Dashboard
+                </a>
+            {% else %}
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg pulse">
+                    <i class="fas fa-rocket"></i> Get Started Free
+                </a>
+                <a href="{{ url_for('login') }}" class="btn" style="color:white; border:2px solid rgba(255,255,255,0.30); background:transparent; padding:13px 22px;">
+                    <i class="fas fa-right-to-bracket"></i> Login
+                </a>
+            {% endif %}
+        </div>
+        <div class="hero-stats">
+            <div>
+                <div class="hero-stat-value">7+</div>
+                <div class="hero-stat-label">Diseases Detected</div>
+            </div>
+            <div>
+                <div class="hero-stat-value">5</div>
+                <div class="hero-stat-label">Expert Doctors</div>
+            </div>
+            <div>
+                <div class="hero-stat-value">3</div>
+                <div class="hero-stat-label">Medicine Systems</div>
+            </div>
+            <div>
+                <div class="hero-stat-value">AI</div>
+                <div class="hero-stat-label">Powered Analysis</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hero-image-panel">
+        <div class="hero-image-card">
+            <i class="fas fa-brain" style="color: var(--teal-bright);"></i>
+            AI Detection<br><small style="opacity:0.6;">Instant analysis</small>
+        </div>
+        <div class="hero-image-card">
+            <i class="fas fa-pills" style="color: #10B981;"></i>
+            Medicines<br><small style="opacity:0.6;">3 systems</small>
+        </div>
+        <div class="hero-image-card">
+            <i class="fas fa-user-doctor" style="color: #F59E0B;"></i>
+            Doctors<br><small style="opacity:0.6;">Auto-assigned</small>
+        </div>
+        <div class="hero-image-card">
+            <i class="fas fa-shield-halved" style="color: #8B5CF6;"></i>
+            Secure<br><small style="opacity:0.6;">Private & safe</small>
+        </div>
+    </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<div style="text-align:center; margin-bottom:32px;">
+    <div class="badge badge-primary" style="margin-bottom:12px;">
+        <i class="fas fa-circle-nodes"></i> Process
+    </div>
+    <h2 class="section-title">How SkinCare AI Works</h2>
+    <p class="section-subtitle">Complete your diagnosis in 4 simple steps</p>
+</div>
+
+<div class="steps-grid">
+    <div class="step-card stagger-1">
+        <div class="step-number">1</div>
+        <i class="fas fa-chevron-right step-connector"></i>
+        <div class="step-icon">
+            <i class="fas fa-user-plus"></i>
+        </div>
+        <h3>Register & Login</h3>
+        <p>Create your free account with email or Google. Your data is secure and private.</p>
+    </div>
+    <div class="step-card stagger-2">
+        <div class="step-number">2</div>
+        <i class="fas fa-chevron-right step-connector"></i>
+        <div class="step-icon">
+            <i class="fas fa-clipboard-list"></i>
+        </div>
+        <h3>Fill Health Form</h3>
+        <p>Answer a quick MCQ health assessment so we can personalise your diagnosis and treatment.</p>
+    </div>
+    <div class="step-card stagger-3">
+        <div class="step-number">3</div>
+        <i class="fas fa-chevron-right step-connector"></i>
+        <div class="step-icon">
+            <i class="fa-duotone fa-solid fa-users-viewfinder"></i>
+        </div>
+        <h3>Scan Your Skin</h3>
+        <p>Upload a clear photo. Our AI analyses it instantly with high accuracy.</p>
+    </div>
+    <div class="step-card stagger-4">
+        <div class="step-number">4</div>
+        <div class="step-icon">
+            <i class="fas fa-file-medical"></i>
+        </div>
+        <h3>Get Results</h3>
+        <p>Receive diagnosis, AI-powered medicines, and get connected to the right doctor automatically.</p>
+    </div>
+</div>
+
+<!-- DISEASES -->
+<div style="text-align:center; margin-bottom:32px;">
+    <h2 class="section-title">Diseases We Detect</h2>
+    <p class="section-subtitle">Our AI is trained to identify these common skin conditions</p>
+</div>
+
+<div class="diseases-grid">
+    <a href="{{ url_for('education') }}" class="disease-chip">
+        <div class="disease-chip-icon" style="background: rgba(245,158,11,0.12); color: #F59E0B;">
+            <i class="fas fa-circle-nodes"></i>
+        </div>
+        <div>
+            <div class="disease-chip-name">Acne Vulgaris</div>
+            <div class="disease-chip-type">Low–Moderate Severity</div>
+        </div>
+    </a>
+    <a href="{{ url_for('education') }}" class="disease-chip">
+        <div class="disease-chip-icon" style="background: rgba(59,130,246,0.12); color: #3B82F6;">
+            <i class="fas fa-droplet"></i>
+        </div>
+        <div>
+            <div class="disease-chip-name">Eczema</div>
+            <div class="disease-chip-type">Moderate Severity</div>
+        </div>
+    </a>
+    <a href="{{ url_for('education') }}" class="disease-chip">
+        <div class="disease-chip-icon" style="background: rgba(239,68,68,0.12); color: #EF4444;">
+            <i class="fas fa-triangle-exclamation"></i>
+        </div>
+        <div>
+            <div class="disease-chip-name">Melanoma</div>
+            <div class="disease-chip-type">CRITICAL – See Doctor</div>
+        </div>
+    </a>
+    <a href="{{ url_for('education') }}" class="disease-chip">
+        <div class="disease-chip-icon" style="background: rgba(139,92,246,0.12); color: #8B5CF6;">
+            <i class="fas fa-shield-virus"></i>
+        </div>
+        <div>
+            <div class="disease-chip-name">Psoriasis</div>
+            <div class="disease-chip-type">Moderate–High Severity</div>
+        </div>
+    </a>
+    <a href="{{ url_for('education') }}" class="disease-chip">
+        <div class="disease-chip-icon" style="background: rgba(249,115,22,0.12); color: #F97316;">
+            <i class="fas fa-bacterium"></i>
+        </div>
+        <div>
+            <div class="disease-chip-name">Ringworm (Tinea)</div>
+            <div class="disease-chip-type">Low–Moderate Severity</div>
+        </div>
+    </a>
+    <a href="{{ url_for('education') }}" class="disease-chip">
+        <div class="disease-chip-icon" style="background: rgba(99,102,241,0.12); color: #6366F1;">
+            <i class="fas fa-layer-group"></i>
+        </div>
+        <div>
+            <div class="disease-chip-name">Vitiligo</div>
+            <div class="disease-chip-type">Moderate (Autoimmune)</div>
+        </div>
+    </a>
+    <a href="{{ url_for('education') }}" class="disease-chip">
+        <div class="disease-chip-icon" style="background: rgba(16,185,129,0.12); color: #10B981;">
+            <i class="fas fa-circle-check"></i>
+        </div>
+        <div>
+            <div class="disease-chip-name">Normal Skin</div>
+            <div class="disease-chip-type">Healthy – Maintenance Tips</div>
+        </div>
+    </a>
+    <a href="{{ url_for('education') }}" class="disease-chip">
+        <div class="disease-chip-icon" style="background: rgba(8,145,178,0.12); color: var(--teal);">
+            <i class="fas fa-plus"></i>
+        </div>
+        <div>
+            <div class="disease-chip-name">More Coming</div>
+            <div class="disease-chip-type">Expanding Database</div>
+        </div>
+    </a>
+</div>
+
+<!-- FEATURES -->
+<div style="text-align:center; margin-bottom:32px;">
+    <h2 class="section-title">Why Choose DermaScan AI?</h2>
+    <p class="section-subtitle">Built with care for patients across India</p>
+</div>
+
+<div class="features-grid">
+    <div class="feature-card stagger-1">
+        <div class="feature-icon" style="background:rgba(8,145,178,0.12); color:var(--teal);">
+            <i class="fas fa-brain"></i>
+        </div>
+        <h3>AI-Powered Analysis</h3>
+        <p>Deep learning model trained on thousands of skin condition images for accurate, instant detection.</p>
+    </div>
+    <div class="feature-card stagger-2">
+        <div class="feature-icon" style="background:rgba(16,185,129,0.12); color:var(--green);">
+            <i class="fas fa-route"></i>
+        </div>
+        <h3>Smart Doctor Allocation</h3>
+        <p>Based on your detected disease, we automatically connect you with the most relevant specialist.</p>
+    </div>
+    <div class="feature-card stagger-3">
+        <div class="feature-icon" style="background:rgba(245,158,11,0.12); color:var(--amber);">
+            <i class="fas fa-pills"></i>
+        </div>
+        <h3>3 Medicine Systems</h3>
+        <p>Get AI-generated medicine recommendations in Allopathic, Ayurvedic, or Homeopathic systems.</p>
+    </div>
+    <div class="feature-card stagger-1">
+        <div class="feature-icon" style="background:rgba(139,92,246,0.12); color:var(--purple);">
+            <i class="fas fa-lock"></i>
+        </div>
+        <h3>Fully Private & Secure</h3>
+        <p>Your health data is private. Only your assigned doctor can view your scan results.</p>
+    </div>
+    <div class="feature-card stagger-2">
+        <div class="feature-icon" style="background:rgba(239,68,68,0.12); color:var(--red);">
+            <i class="fas fa-clock-rotate-left"></i>
+        </div>
+        <h3>Scan History</h3>
+        <p>Access all your previous scans, treatment progress, and doctor conversations in one dashboard.</p>
+    </div>
+    <div class="feature-card stagger-3">
+        <div class="feature-icon" style="background:rgba(10,22,40,0.08); color:var(--navy);">
+            <i class="fas fa-mobile-screen-button"></i>
+        </div>
+        <h3>Mobile Friendly</h3>
+        <p>Works perfectly on all devices. Scan your skin from anywhere, anytime, with any smartphone.</p>
+    </div>
+</div>
+
+<!-- CTA BANNER -->
+{% if not session.get('user_email') %}
+<div class="cta-banner">
+    <h2>Start Your Free Skin Analysis Today</h2>
+    <p>Register in 30 seconds. No credit card required. Get instant AI-powered diagnosis.</p>
+    <div style="position:relative; z-index:1; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+        <a href="{{ url_for('register') }}" class="btn" style="background:white; color:var(--navy); font-size:1rem; padding:14px 28px;">
+            <i class="fas fa-rocket"></i> Register Free
+        </a>
+        <a href="{{ url_for('login') }}" class="btn" style="border:2px solid rgba(255,255,255,0.40); color:white; background:transparent; font-size:0.95rem; padding:13px 24px;">
+            <i class="fas fa-right-to-bracket"></i> I have an account
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

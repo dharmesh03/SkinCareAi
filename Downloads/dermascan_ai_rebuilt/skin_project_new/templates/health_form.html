@@ -1,0 +1,536 @@
+{% extends "base.html" %}
+{% block title %}Health Assessment – Skincare AI{% endblock %}
+{% block extra_css %}
+<style>
+.form-page-header {
+    background: var(--navy);
+    border-radius: var(--r-lg);
+    padding: 40px 48px;
+    color: white;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+.form-page-header::before { content:''; position:absolute; inset:0; background:var(--gradient-mesh); }
+.header-icon-box {
+    width: 72px; height: 72px;
+    background: rgba(8,145,178,0.20);
+    border: 2px solid rgba(8,145,178,0.30);
+    border-radius: 18px;
+    display: flex; align-items:center; justify-content:center;
+    color: var(--teal-bright);
+    font-size: 2rem;
+    flex-shrink: 0;
+    position: relative; z-index:1;
+}
+.form-page-header h1 { font-family:'DM Serif Display',serif; font-size:2rem; margin-bottom:6px; position:relative; z-index:1; }
+.form-page-header p { color:rgba(255,255,255,0.65); font-size:0.9rem; position:relative; z-index:1; }
+.header-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(239,68,68,0.25); border:1px solid rgba(239,68,68,0.35); color:#FCA5A5; padding:4px 12px; border-radius:50px; font-size:0.75rem; font-weight:600; margin-top:8px; position:relative; z-index:1; }
+
+/* Progress */
+.progress-wrap {
+    background: white;
+    border-radius: var(--r);
+    padding: 18px 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 28px;
+    display: flex; align-items:center; gap:16px;
+    border: 1px solid var(--border);
+}
+.progress-bar-outer { flex:1; height:6px; background:var(--border); border-radius:50px; overflow:hidden; }
+.progress-bar-inner { height:100%; background:var(--gradient-teal); border-radius:50px; transition:width 0.5s ease; width:0%; }
+.progress-label { font-size:0.82rem; color:var(--text-muted); white-space:nowrap; font-weight:500; }
+
+/* Section */
+.form-section {
+    background: white;
+    border-radius: var(--r);
+    box-shadow: var(--shadow);
+    margin-bottom: 22px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+    animation: slideUp 0.4s ease forwards;
+}
+.form-section:hover { box-shadow: var(--shadow-lg); }
+
+.section-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items:center; gap:14px;
+    background: linear-gradient(135deg, rgba(8,145,178,0.03) 0%, rgba(16,185,129,0.02) 100%);
+}
+.section-num {
+    width: 32px; height:32px;
+    background: var(--gradient-teal);
+    color: white; border-radius: 50%;
+    display:flex; align-items:center; justify-content:center;
+    font-weight: 700; font-size: 0.82rem;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-teal);
+}
+.section-header h3 { font-size:1rem; font-weight:600; color:var(--navy); }
+.section-header p { font-size:0.78rem; color:var(--text-muted); margin-top:2px; }
+
+.section-body { padding: 24px; }
+
+/* MCQ Options */
+.mcq-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap:10px; }
+.mcq-option { position:relative; }
+.mcq-option input { position:absolute; opacity:0; width:0; height:0; }
+.mcq-label {
+    display: flex; flex-direction:column; align-items:center; gap:8px;
+    padding: 14px 12px;
+    border: 2px solid var(--border);
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    text-align: center;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    background: white;
+}
+.mcq-label i { font-size: 1.2rem; }
+.mcq-label:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-glow); }
+.mcq-option input:checked + .mcq-label {
+    border-color: var(--teal);
+    background: var(--teal-glow);
+    color: var(--teal);
+    box-shadow: 0 0 0 3px rgba(8,145,178,0.12);
+}
+
+.mcq-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap:10px; }
+.mcq-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap:10px; }
+
+.required-mark { color: var(--red); font-size: 0.8rem; }
+
+/* Treatment type highlight */
+.medicine-type-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap:14px; }
+.medicine-card { position:relative; }
+.medicine-card input { position:absolute; opacity:0; }
+.medicine-label {
+    display:block; padding:18px; border:2px solid var(--border);
+    border-radius: var(--r-sm); cursor:pointer; transition:all 0.25s;
+    text-align: center;
+}
+.medicine-label .med-icon { font-size:1.6rem; margin-bottom:10px; display:block; }
+.medicine-label .med-name { font-weight:600; font-size:0.9rem; color:var(--navy); display:block; }
+.medicine-label .med-desc { font-size:0.75rem; color:var(--text-muted); margin-top:4px; display:block; }
+.medicine-card input:checked + .medicine-label {
+    border-color: var(--teal);
+    background: var(--teal-glow);
+    box-shadow: 0 0 0 3px rgba(8,145,178,0.12);
+}
+.medicine-card input:checked + .medicine-label .med-name { color: var(--teal); }
+
+.textarea-field {
+    width:100%; padding:12px 14px;
+    border:1.5px solid var(--border);
+    border-radius:var(--r-sm);
+    font-family:'Outfit',sans-serif;
+    font-size:0.875rem;
+    resize:vertical;
+    min-height:100px;
+    transition:all 0.2s;
+    color:var(--text);
+}
+.textarea-field:focus { outline:none; border-color:var(--teal); box-shadow:0 0 0 3px rgba(8,145,178,0.12); }
+
+.submit-bar {
+    background: white;
+    border-radius: var(--r);
+    padding: 24px 28px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 8px;
+}
+.submit-info { font-size:0.83rem; color:var(--text-muted); display:flex; align-items:center; gap:8px; }
+.submit-info i { color:var(--green); }
+
+.btn-submit {
+    display:flex; align-items:center; gap:10px;
+    padding:13px 28px; background:var(--gradient-teal);
+    color:white; border:none; border-radius:var(--r-sm);
+    font-size:0.95rem; font-weight:600; cursor:pointer;
+    transition:all 0.25s; font-family:'Outfit',sans-serif;
+    box-shadow: var(--shadow-teal);
+}
+.btn-submit:hover { transform:translateY(-2px); box-shadow:0 12px 32px rgba(8,145,178,0.40); }
+
+@media (max-width:600px) {
+    .mcq-grid { grid-template-columns: repeat(2, 1fr); }
+    .medicine-type-grid { grid-template-columns: 1fr; }
+    .form-page-header { flex-direction:column; padding:28px; }
+    .submit-bar { flex-direction:column; text-align:center; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-page-header animate-fadeIn">
+    <div class="header-icon-box">
+        <i class="fas fa-clipboard-list"></i>
+    </div>
+    <div>
+        <h1>Health Assessment Form</h1>
+        <p>Answer all questions honestly to get the most accurate diagnosis and personalised treatment plan</p>
+        <div class="header-badge">
+            <i class="fas fa-lock"></i> Required before skin scan
+        </div>
+    </div>
+</div>
+
+<!-- Progress Bar -->
+<div class="progress-wrap">
+    <i class="fas fa-chart-line" style="color:var(--teal);"></i>
+    <div class="progress-bar-outer">
+        <div class="progress-bar-inner" id="progressBar"></div>
+    </div>
+    <span class="progress-label" id="progressText">0 / 9 answered</span>
+</div>
+
+<form method="POST" id="healthForm" onsubmit="return validateForm()">
+
+    <!-- Section 1: Personal Info -->
+    <div class="form-section stagger-1">
+        <div class="section-header">
+            <div class="section-num">1</div>
+            <div>
+                <h3><i class="fas fa-person" style="color:var(--teal); margin-right:6px;"></i> Personal Information</h3>
+                <p>Basic health profile details</p>
+            </div>
+        </div>
+        <div class="section-body">
+            <div class="form-group">
+                <label class="form-label">Gender <span class="required-mark">*</span></label>
+                <div class="mcq-grid-3">
+                    <div class="mcq-option">
+                        <input type="radio" name="gender" id="g_male" value="male" onchange="updateProgress()" required>
+                        <label class="mcq-label" for="g_male">
+                            <i class="fas fa-mars" style="color:#3B82F6;"></i> Male
+                        </label>
+                    </div>
+                    <div class="mcq-option">
+                        <input type="radio" name="gender" id="g_female" value="female" onchange="updateProgress()">
+                        <label class="mcq-label" for="g_female">
+                            <i class="fas fa-venus" style="color:#EC4899;"></i> Female
+                        </label>
+                    </div>
+                    <div class="mcq-option">
+                        <input type="radio" name="gender" id="g_other" value="other" onchange="updateProgress()">
+                        <label class="mcq-label" for="g_other">
+                            <i class="fas fa-genderless" style="color:#8B5CF6;"></i> Other
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Age Group <span class="required-mark">*</span></label>
+                <div class="mcq-grid">
+                    {% for age in ['Under 18','18–30','31–45','46–60','60+'] %}
+                    <div class="mcq-option">
+                        <input type="radio" name="age_group" id="age_{{ loop.index }}" value="{{ age }}" onchange="updateProgress()">
+                        <label class="mcq-label" for="age_{{ loop.index }}">
+                            <i class="fas fa-user-clock" style="color:var(--teal);"></i> {{ age }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Skin Type <span class="required-mark">*</span></label>
+                <div class="mcq-grid">
+                    {% for t in ['Oily','Dry','Combination','Normal','Sensitive'] %}
+                    <div class="mcq-option">
+                        <input type="radio" name="skin_type" id="st_{{ loop.index }}" value="{{ t }}" onchange="updateProgress()">
+                        <label class="mcq-label" for="st_{{ loop.index }}">
+                            <i class="fas fa-hand-dots" style="color:var(--amber);"></i> {{ t }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Problem Description -->
+    <div class="form-section stagger-2">
+        <div class="section-header">
+            <div class="section-num">2</div>
+            <div>
+                <h3><i class="fas fa-magnifying-glass" style="color:var(--teal); margin-right:6px;"></i> Problem Details</h3>
+                <p>Describe your current skin condition</p>
+            </div>
+        </div>
+        <div class="section-body">
+            <div class="form-group">
+                <label class="form-label">How long have you had this problem? <span class="required-mark">*</span></label>
+                <div class="mcq-grid">
+                    {% for d in ['Less than 1 week','1–4 weeks','1–3 months','3–6 months','Over 6 months'] %}
+                    <div class="mcq-option">
+                        <input type="radio" name="problem_duration" id="pd_{{ loop.index }}" value="{{ d }}" onchange="updateProgress()">
+                        <label class="mcq-label" for="pd_{{ loop.index }}">
+                            <i class="fas fa-calendar" style="color:var(--teal);"></i>
+                            <span>{{ d }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Where is the skin problem located? <span class="required-mark">*</span></label>
+                <div class="mcq-grid">
+                    {% for loc in ['Face','Scalp','Neck','Chest','Back','Arms','Legs','Hands/Feet','Multiple Areas'] %}
+                    <div class="mcq-option">
+                        <input type="radio" name="skin_location" id="loc_{{ loop.index }}" value="{{ loc }}" onchange="updateProgress()">
+                        <label class="mcq-label" for="loc_{{ loop.index }}">
+                            <i class="fas fa-location-dot" style="color:var(--red);"></i>
+                            <span>{{ loc }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Is there itching? <span class="required-mark">*</span></label>
+                <div class="mcq-grid-3">
+                    {% for v in [('Yes – Severe','#EF4444'), ('Yes – Mild','#F59E0B'), ('No','#10B981')] %}
+                    <div class="mcq-option">
+                        <input type="radio" name="itching" id="itch_{{ loop.index }}" value="{{ v[0] }}" onchange="updateProgress()">
+                        <label class="mcq-label" for="itch_{{ loop.index }}">
+                            <i class="fas fa-hand" style="color:{{ v[1] }};"></i> {{ v[0] }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Is the problem spreading? <span class="required-mark">*</span></label>
+                <div class="mcq-grid-3">
+                    {% for v in [('Yes – Fast','#EF4444'), ('Yes – Slowly','#F59E0B'), ('No / Stable','#10B981')] %}
+                    <div class="mcq-option">
+                        <input type="radio" name="spreading" id="spr_{{ loop.index }}" value="{{ v[0] }}" onchange="updateProgress()">
+                        <label class="mcq-label" for="spr_{{ loop.index }}">
+                            <i class="fas fa-expand" style="color:{{ v[1] }};"></i> {{ v[0] }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Is there burning sensation?</label>
+                <div class="mcq-grid-3">
+                    <div class="mcq-option">
+                        <input type="radio" name="burning" id="burn_yes" value="Yes">
+                        <label class="mcq-label" for="burn_yes">
+                            <i class="fas fa-fire" style="color:#EF4444;"></i> Yes
+                        </label>
+                    </div>
+                    <div class="mcq-option">
+                        <input type="radio" name="burning" id="burn_no" value="No" checked>
+                        <label class="mcq-label" for="burn_no">
+                            <i class="fas fa-circle-xmark" style="color:#10B981;"></i> No
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Describe your skin problem in your own words (optional)</label>
+                <textarea name="skin_description" class="textarea-field"
+                          placeholder="E.g. Red circular patches on my left arm that started 3 weeks ago, itching at night..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Medical History -->
+    <div class="form-section stagger-3">
+        <div class="section-header">
+            <div class="section-num">3</div>
+            <div>
+                <h3><i class="fas fa-notes-medical" style="color:var(--teal); margin-right:6px;"></i> Medical History</h3>
+                <p>Existing health conditions that may affect treatment</p>
+            </div>
+        </div>
+        <div class="section-body">
+            <div class="form-group">
+                <label class="form-label">Do you have Diabetes?</label>
+                <div class="mcq-grid-3">
+                    {% for v in ['Yes – Controlled','Yes – Uncontrolled','No'] %}
+                    <div class="mcq-option">
+                        <input type="radio" name="diabetes" id="dia_{{ loop.index }}" value="{{ v }}">
+                        <label class="mcq-label" for="dia_{{ loop.index }}">
+                            <i class="fas fa-syringe" style="color:var(--amber);"></i>
+                            <span>{{ v }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Thyroid condition?</label>
+                <div class="mcq-grid">
+                    {% for v in ['Hypothyroid','Hyperthyroid','No','Not Tested'] %}
+                    <div class="mcq-option">
+                        <input type="radio" name="thyroid" id="thy_{{ loop.index }}" value="{{ v }}">
+                        <label class="mcq-label" for="thy_{{ loop.index }}">
+                            <i class="fas fa-ribbon" style="color:var(--purple);"></i>
+                            <span>{{ v }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Known allergies?</label>
+                <div class="mcq-grid">
+                    {% for v in ['Dust / Pollen','Food Allergy','Drug Allergy','Pet Dander','None Known'] %}
+                    <div class="mcq-option">
+                        <input type="radio" name="allergies" id="all_{{ loop.index }}" value="{{ v }}">
+                        <label class="mcq-label" for="all_{{ loop.index }}">
+                            <i class="fas fa-triangle-exclamation" style="color:var(--red);"></i>
+                            <span>{{ v }}</span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Are you pregnant or breastfeeding? (Females only)</label>
+                <div class="mcq-grid-3">
+                    {% for v in ['Pregnant','Breastfeeding','No / N.A.'] %}
+                    <div class="mcq-option">
+                        <input type="radio" name="pregnant" id="preg_{{ loop.index }}" value="{{ v }}">
+                        <label class="mcq-label" for="preg_{{ loop.index }}">
+                            <i class="fas fa-baby" style="color:#EC4899;"></i> {{ v }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 4: Previous Treatment -->
+    <div class="form-section stagger-4">
+        <div class="section-header">
+            <div class="section-num">4</div>
+            <div>
+                <h3><i class="fas fa-clock-rotate-left" style="color:var(--teal); margin-right:6px;"></i> Previous Treatment</h3>
+                <p>Your treatment history helps us suggest better options</p>
+            </div>
+        </div>
+        <div class="section-body">
+            <div class="form-group">
+                <label class="form-label">Have you tried any treatment before? <span class="required-mark">*</span></label>
+                <div class="mcq-grid-3">
+                    {% for v in [('Yes – Helped','#10B981'), ('Yes – No Relief','#EF4444'), ('No Treatment Yet','#8B5CF6')] %}
+                    <div class="mcq-option">
+                        <input type="radio" name="previous_treatment" id="prev_{{ loop.index }}" value="{{ v[0] }}" onchange="updateProgress()" required>
+                        <label class="mcq-label" for="prev_{{ loop.index }}">
+                            <i class="fas fa-pills" style="color:{{ v[1] }};"></i> {{ v[0] }}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">If yes, what treatment did you use? (optional)</label>
+                <input type="text" name="treatment_used" class="form-control" style="font-family:'Outfit',sans-serif;"
+                       placeholder="E.g. Antifungal cream, Homeopathic medicine, etc.">
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 5: Medicine Preference -->
+    <div class="form-section">
+        <div class="section-header">
+            <div class="section-num">5</div>
+            <div>
+                <h3><i class="fas fa-pills" style="color:var(--teal); margin-right:6px;"></i> Treatment Preference</h3>
+                <p>Choose your preferred medicine system for recommendations</p>
+            </div>
+        </div>
+        <div class="section-body">
+            <label class="form-label">Which medicine system do you prefer? <span class="required-mark">*</span></label>
+            <div class="medicine-type-grid">
+                <div class="medicine-card">
+                    <input type="radio" name="medicine_type" id="med_allo" value="allopathic" checked onchange="updateProgress()">
+                    <label class="medicine-label" for="med_allo">
+                        <i class="fas fa-capsules med-icon" style="color:#0891B2;"></i>
+                        <span class="med-name">Allopathic</span>
+                        <span class="med-desc">Modern medicine, quick relief</span>
+                    </label>
+                </div>
+                <div class="medicine-card">
+                    <input type="radio" name="medicine_type" id="med_ayur" value="ayurvedic" onchange="updateProgress()">
+                    <label class="medicine-label" for="med_ayur">
+                        <i class="fas fa-seedling med-icon" style="color:#10B981;"></i>
+                        <span class="med-name">Ayurvedic</span>
+                        <span class="med-desc">Herbal, holistic healing</span>
+                    </label>
+                </div>
+                <div class="medicine-card">
+                    <input type="radio" name="medicine_type" id="med_homeo" value="homeopathic" onchange="updateProgress()">
+                    <label class="medicine-label" for="med_homeo">
+                        <i class="fas fa-flask med-icon" style="color:#8B5CF6;"></i>
+                        <span class="med-name">Homeopathic</span>
+                        <span class="med-desc">Natural energy-based healing</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="submit-bar">
+        <div class="submit-info">
+            <i class="fas fa-circle-check"></i>
+            All required fields (<span style="color:var(--red);">*</span>) must be filled to proceed to scan
+        </div>
+        <button type="submit" class="btn-submit">
+            <i class="fas fa-arrow-right"></i>
+            Proceed to Skin Scan
+        </button>
+    </div>
+
+</form>
+
+<script>
+const REQUIRED = ['gender','age_group','skin_type','problem_duration','skin_location','itching','spreading','previous_treatment','medicine_type'];
+
+function updateProgress() {
+    let answered = 0;
+    REQUIRED.forEach(name => {
+        if (document.querySelector(`input[name="${name}"]:checked`)) answered++;
+    });
+    const pct = Math.round((answered / REQUIRED.length) * 100);
+    document.getElementById('progressBar').style.width = pct + '%';
+    document.getElementById('progressText').textContent = `${answered} / ${REQUIRED.length} answered`;
+}
+
+function validateForm() {
+    const missing = [];
+    REQUIRED.forEach(name => {
+        if (!document.querySelector(`input[name="${name}"]:checked`)) {
+            missing.push(name.replace('_',' '));
+        }
+    });
+    if (missing.length > 0) {
+        alert('Please answer all required questions:\n• ' + missing.join('\n• '));
+        return false;
+    }
+    return true;
+}
+
+// Init progress
+updateProgress();
+</script>
+{% endblock %}

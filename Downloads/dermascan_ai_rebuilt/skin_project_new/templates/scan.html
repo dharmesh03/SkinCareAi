@@ -1,0 +1,290 @@
+{% extends "base.html" %}
+{% block title %}Scan Skin – Skincare AI{% endblock %}
+{% block extra_css %}
+<style>
+.scan-header {
+    background: var(--navy);
+    border-radius: var(--r-lg);
+    padding: 40px 48px;
+    color: white;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+    display: flex; align-items:center; gap:28px;
+}
+.scan-header::before { content:''; position:absolute; inset:0; background:var(--gradient-mesh); }
+.scan-header-icon {
+    width:72px; height:72px;
+    background: rgba(8,145,178,0.20); border:2px solid rgba(8,145,178,0.30);
+    border-radius:18px; display:flex; align-items:center; justify-content:center;
+    color:var(--teal-bright); font-size:2rem; flex-shrink:0; position:relative; z-index:1;
+}
+.scan-header h1 { font-family:'DM Serif Display',serif; font-size:2rem; margin-bottom:6px; position:relative; z-index:1; }
+.scan-header p { color:rgba(255,255,255,0.65); font-size:0.9rem; position:relative; z-index:1; }
+.health-summary {
+    display: flex; gap:10px; flex-wrap:wrap;
+    margin-top:10px; position:relative; z-index:1;
+}
+.health-tag {
+    background: rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.15);
+    color:rgba(255,255,255,0.80); padding:4px 12px; border-radius:50px;
+    font-size:0.75rem; display:flex; align-items:center; gap:6px;
+}
+
+.scan-grid { display: grid; grid-template-columns: 1fr 1fr; gap:24px; }
+
+.upload-card {
+    background: white; border-radius: var(--r);
+    border: 1px solid var(--border); overflow:hidden;
+    box-shadow: var(--shadow);
+}
+.card-head {
+    padding:18px 22px; border-bottom:1px solid var(--border);
+    background:linear-gradient(135deg, rgba(8,145,178,0.03), rgba(16,185,129,0.02));
+    display:flex; align-items:center; gap:10px;
+}
+.card-head h3 { font-size:1rem; font-weight:600; color:var(--navy); }
+.card-body { padding:24px; }
+
+.upload-zone {
+    border: 2.5px dashed var(--teal);
+    border-radius: var(--r-sm);
+    padding: 48px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: var(--teal-glow);
+    position: relative;
+}
+.upload-zone:hover, .upload-zone.dragover {
+    background: rgba(8,145,178,0.12);
+    border-color: var(--teal-bright);
+    transform: scale(1.01);
+}
+.upload-zone input { position:absolute; inset:0; opacity:0; cursor:pointer; }
+.upload-icon-wrap {
+    width:64px; height:64px; margin:0 auto 16px;
+    background: white; border-radius:16px;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--teal); font-size:1.8rem;
+    box-shadow: var(--shadow);
+}
+.upload-zone h4 { font-size:1rem; font-weight:600; color:var(--navy); margin-bottom:6px; }
+.upload-zone p { font-size:0.82rem; color:var(--text-muted); }
+.upload-zone .formats { margin-top:10px; display:flex; justify-content:center; gap:6px; }
+.format-tag { background:white; border:1px solid var(--border); border-radius:4px; padding:2px 8px; font-size:0.72rem; color:var(--text-muted); }
+
+#preview-box { display:none; margin-top:16px; text-align:center; }
+#preview-img {
+    max-width:100%; max-height:200px;
+    border-radius:var(--r-sm);
+    box-shadow:var(--shadow);
+    object-fit:cover;
+}
+
+.tips-list { display:flex; flex-direction:column; gap:12px; }
+.tip-item {
+    display:flex; gap:12px; align-items:flex-start;
+    padding:14px; border-radius:var(--r-sm);
+    background:#F8FAFC; border:1px solid var(--border);
+}
+.tip-num {
+    width:26px; height:26px; flex-shrink:0;
+    background:var(--gradient-teal); color:white; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:0.75rem; font-weight:700;
+}
+.tip-item p { font-size:0.83rem; color:var(--text-muted); line-height:1.5; }
+.tip-item strong { color:var(--navy); }
+
+.btn-scan {
+    width:100%; padding:15px; background:var(--gradient-teal);
+    color:white; border:none; border-radius:var(--r-sm);
+    font-size:1rem; font-weight:700; cursor:pointer;
+    transition:all 0.25s; font-family:'Outfit',sans-serif;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    box-shadow: var(--shadow-teal);
+    margin-top:20px;
+}
+.btn-scan:hover { transform:translateY(-2px); box-shadow:0 14px 36px rgba(8,145,178,0.45); }
+
+.scanning-overlay {
+    display:none; position:fixed; inset:0; z-index:9999;
+    background:rgba(10,22,40,0.85); backdrop-filter:blur(8px);
+    align-items:center; justify-content:center; flex-direction:column; gap:20px;
+}
+.scanning-overlay.active { display:flex; }
+.scan-spinner {
+    width:80px; height:80px;
+    border:4px solid rgba(8,145,178,0.20);
+    border-top:4px solid var(--teal-bright);
+    border-radius:50%;
+    animation:spin 1s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+.scan-status { color:white; font-size:1.1rem; font-weight:600; }
+.scan-substatus { color:rgba(255,255,255,0.55); font-size:0.85rem; }
+
+@media (max-width:768px) {
+    .scan-grid { grid-template-columns:1fr; }
+    .scan-header { flex-direction:column; padding:28px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="scan-header animate-fadeIn">
+    <div class="scan-header-icon"><i class="fas fa-camera-viewfinder"></i></div>
+    <div>
+        <h1>Scan Your Skin</h1>
+        <p>Upload a clear image of the affected skin area for AI analysis</p>
+        <div class="health-summary">
+            {% if health_data.get('gender') %}
+                <span class="health-tag"><i class="fas fa-person"></i> {{ health_data.gender|title }}</span>
+            {% endif %}
+            {% if health_data.get('skin_location') %}
+                <span class="health-tag"><i class="fas fa-location-dot"></i> {{ health_data.skin_location }}</span>
+            {% endif %}
+            {% if health_data.get('problem_duration') %}
+                <span class="health-tag"><i class="fas fa-calendar"></i> {{ health_data.problem_duration }}</span>
+            {% endif %}
+            {% if health_data.get('medicine_type') %}
+                <span class="health-tag"><i class="fas fa-pills"></i> {{ health_data.medicine_type|title }} preferred</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<form method="POST" enctype="multipart/form-data" id="scanForm" onsubmit="showScanning()">
+    <div class="scan-grid">
+        <!-- Upload -->
+        <div class="upload-card">
+            <div class="card-head">
+                <i class="fas fa-cloud-arrow-up" style="color:var(--teal);"></i>
+                <h3>Upload Skin Image</h3>
+            </div>
+            <div class="card-body">
+                <div class="upload-zone" id="uploadZone">
+                    <input type="file" name="image" id="imageInput" accept="image/*" onchange="previewImage(this)">
+                    <div id="uploadContent">
+                        <div class="upload-icon-wrap">
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <h4>Drop image here or click to browse</h4>
+                        <p>Take a clear, well-lit photo of the affected area</p>
+                        <div class="formats">
+                            <span class="format-tag">JPG</span>
+                            <span class="format-tag">PNG</span>
+                            <span class="format-tag">AVIF</span>
+                            <span class="format-tag">WEBP</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="preview-box">
+                    <img id="preview-img" src="" alt="Preview">
+                    <p style="font-size:0.82rem; color:var(--text-muted); margin-top:8px;" id="preview-name"></p>
+                    <button type="button" onclick="clearImage()" class="btn btn-sm btn-outline" style="margin-top:8px;">
+                        <i class="fas fa-xmark"></i> Remove
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="upload-card">
+            <div class="card-head">
+                <i class="fas fa-lightbulb" style="color:var(--amber);"></i>
+                <h3>Tips for Best Results</h3>
+            </div>
+            <div class="card-body">
+                <div class="tips-list">
+                    <div class="tip-item">
+                        <div class="tip-num">1</div>
+                        <p><strong>Good Lighting</strong> – Use natural daylight or a bright lamp. Avoid flash as it washes out skin details.</p>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-num">2</div>
+                        <p><strong>Clear Focus</strong> – Hold phone steady. The affected area should be sharp and in focus, not blurry.</p>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-num">3</div>
+                        <p><strong>Close Enough</strong> – Get close to the affected area (15–20 cm away). Show the edges of the condition.</p>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-num">4</div>
+                        <p><strong>Clean Skin</strong> – Remove any cream, makeup or dirt from the area before photographing.</p>
+                    </div>
+                    <div class="tip-item">
+                        <div class="tip-num">5</div>
+                        <p><strong>Multiple Angles</strong> – If one photo doesn't capture it well, try from different angles and upload the clearest one.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="submit" class="btn-scan pulse" id="scanBtn">
+        <i class="fas fa-brain"></i>
+        Analyze with AI
+        <i class="fas fa-arrow-right"></i>
+    </button>
+</form>
+
+<!-- Scanning Overlay -->
+<div class="scanning-overlay" id="scanOverlay">
+    <div class="scan-spinner"></div>
+    <div class="scan-status">Analyzing your skin...</div>
+    <div class="scan-substatus" id="scanMsg">Preprocessing image</div>
+</div>
+
+<script>
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            document.getElementById('uploadContent').style.display = 'none';
+            document.getElementById('preview-box').style.display = 'block';
+            document.getElementById('preview-img').src = e.target.result;
+            document.getElementById('preview-name').textContent = input.files[0].name;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function clearImage() {
+    document.getElementById('imageInput').value = '';
+    document.getElementById('uploadContent').style.display = 'block';
+    document.getElementById('preview-box').style.display = 'none';
+}
+
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        document.getElementById('imageInput').files = dt.files;
+        previewImage(document.getElementById('imageInput'));
+    }
+});
+
+const msgs = ['Preprocessing image...', 'Running AI detection...', 'Analyzing skin patterns...', 'Matching disease database...', 'Preparing recommendations...'];
+let msgIdx = 0;
+
+function showScanning() {
+    document.getElementById('scanOverlay').classList.add('active');
+    const interval = setInterval(() => {
+        if (msgIdx < msgs.length) {
+            document.getElementById('scanMsg').textContent = msgs[msgIdx++];
+        } else {
+            clearInterval(interval);
+        }
+    }, 1200);
+}
+</script>
+{% endblock %}
